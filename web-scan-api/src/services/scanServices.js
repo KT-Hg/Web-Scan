@@ -3,10 +3,12 @@ import net from "net";
 import moment from "moment";
 import Docker from "dockerode";
 import { exec } from "child_process";
+import { readFile } from "fs/promises";
 require("dotenv").config();
 
 let containerId = process.env.CONTAINER_ID;
 let containerIdZap = process.env.CONTAINER_ID_ZAP;
+let reportPath = process.env.REPORT_PATH;
 
 const docker = new Docker(); // Sử dụng cấu hình mặc định (socket Docker)
 
@@ -135,7 +137,7 @@ let scanZap = async (target) => {
       let command = ["rm", "-rf", "/home/zap/.ZAP_D/"];
       execCommandInContainer(containerIdZap, command);
       const timestamp = moment().format("HHmmssDDMMYY");
-      const reportPath = `/tmp/report${timestamp}.html`;
+      const reportPath = `/tmp/report${timestamp}.json`;
       const freePort = await getAvailablePort(8080, containerIdZap);
       console.log(freePort.toString());
 
@@ -158,10 +160,23 @@ let scanZap = async (target) => {
   });
 };
 
+let getReport = async (reportName) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const data = await readFile(`${reportPath + reportName}.json`, "utf8");
+      const jsonData = JSON.parse(data);
+      resolve(jsonData);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   scanNmap: scanNmap,
   scanSkipfish: scanSkipfish,
   scanNikto: scanNikto,
   scanWapiti: scanWapiti,
   scanZap: scanZap,
+  getReport: getReport,
 };

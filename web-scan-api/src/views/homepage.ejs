@@ -21,9 +21,25 @@
   <body>
     <div class="container mt-5">
       <div class="row g-3">
-        <div class="col-md-12">
-          <a href="/scan" class="btn btn-primary col-md-6 col-12">Scan</a>
+        <div class="col-md-6 col-12">
+          <a href="/scan" class="btn btn-primary col-12">Scan</a>
         </div>
+        <form class="col-md-6 col-12 mb-0" action="/viewReport" method="POST"">
+          <div class="row g-3">
+            <div class="col-md-8 col-sm-10">
+              <input
+                type="text"
+                class="form-control"
+                id="inputReportName"
+                name="reportName"
+                placeholder="Report Name"/>                
+            </div>
+            <div class="col-md-4 col-sm-2 px-md-0 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary col-12">View</button>
+            </div>
+          </div>
+        </form>
+        <div class="m-0"></div>
         <div class="col-md-4 col-sm-10">
           <a href="/homeUser" class="btn btn-primary col-12">User</a>
         </div>

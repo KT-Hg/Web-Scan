@@ -17,6 +17,7 @@ let initWebRoutes = (app) => {
   router.get("/scan", homeController.getScanPage);
 
   router.post("/scan", homeController.scan);
+  router.post("/viewReport", homeController.viewReport);
 
   return app.use("/", router);
 };

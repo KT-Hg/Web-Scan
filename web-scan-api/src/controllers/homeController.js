@@ -95,6 +95,17 @@ let scan = async (req, res) => {
   }
 };
 
+let viewReport = async (req, res) => {
+  try {
+    let data = await scanServices.getReport(req.body.reportName);
+    return res.render("./RP/report.ejs", {
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 module.exports = {
   getHomePage: getHomePage,
 
@@ -109,4 +120,5 @@ module.exports = {
   getScanPage: getScanPage,
 
   scan: scan,
+  viewReport: viewReport,
 };

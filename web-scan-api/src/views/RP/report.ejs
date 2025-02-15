@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ZAP Report - <%= data['@programName'] %> v<%= data['@version'] %></title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>ZAP Security Report</h1>
+    <h3>Generated on: <%= data['@generated'] %></h3>
+    
+    <% data.site.forEach(function(site) { %>
+        <div class="site">
+            <h2>Site: <%= site['@name'] %> (<%= site['@host'] %>:<%= site['@port'] %>)</h2>
+            <p>SSL: <%= site['@ssl'] === 'true' ? 'Enabled' : 'Disabled' %></p>
+            
+            <% if (site.alerts.length > 0) { %>
+                <table class="alerts">
+                    <tr>
+                        <th>Alert</th>
+                        <th>Risk</th>
+                        <th>Description</th>
+                        <th>Solution</th>
+                        <th>Reference</th>
+                    </tr>
+                    <% site.alerts.forEach(function(alert) { %>
+                        <tr class="risk-<%= alert.riskcode %>">
+                            <td><%= alert.alert %></td>
+                            <td><%= alert.riskdesc %></td>
+                            <td><%= alert.desc %></td>
+                            <td><%= alert.solution %></td>
+                            <td><%= alert.reference %></td>
+                        </tr>
+                    <% }); %>
+                </table>
+            <% } else { %>
+                <p>No alerts found for this site.</p>
+            <% } %>
+        </div>
+    <% }); %>
+</body>
+</html>
