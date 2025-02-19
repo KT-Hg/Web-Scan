@@ -160,6 +160,26 @@ let scanZap = async (target) => {
   });
 };
 
+let scanSonarQube = async (target) => {
+  return new Promise((resolve, reject) => {
+    try {
+      // let command = [
+      //   "sonar-scanner",
+      //   "-Dsonar.projectKey=my:project",
+      //   "-Dsonar.sources=.",
+      //   "-Dsonar.host.url=http://sonarqube:9000",
+      //   "-Dsonar.login=admin",
+      //   "-Dsonar.password=admin",
+      // ];
+
+      // execCommandInContainer(containerId, command);
+      resolve("Scan SonarQube successfully");
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 let getReport = async (reportName) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -178,5 +198,6 @@ module.exports = {
   scanNikto: scanNikto,
   scanWapiti: scanWapiti,
   scanZap: scanZap,
+  scanSonarQube: scanSonarQube,
   getReport: getReport,
 };

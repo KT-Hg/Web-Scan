@@ -86,7 +86,7 @@ let getScanPage = async (req, res) => {
   }
 };
 
-let scan = async (req, res) => {
+let scanURL = async (req, res) => {
   try {
     scanServices.scanZap(req.body.url);
     return res.redirect("/homeUser");
@@ -95,10 +95,19 @@ let scan = async (req, res) => {
   }
 };
 
+let scanSourceCode = async (req, res) => {
+  try {
+    scanServices.scanSonarQube(req.body.urlGithub);
+    return res.redirect("/homeUser");
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 let viewReport = async (req, res) => {
   try {
-    let data = await scanServices.getReport(req.body.reportName);
-    return res.render("./RP/report.ejs", {
+    let data = await scanServices.getReport(req.query.reportName);
+    return res.render("./RP/reportZAP.ejs", {
       data: data,
     });
   } catch (error) {
@@ -119,6 +128,7 @@ module.exports = {
 
   getScanPage: getScanPage,
 
-  scan: scan,
+  scanURL: scanURL,
+  scanSourceCode: scanSourceCode,
   viewReport: viewReport,
 };

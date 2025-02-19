@@ -20,22 +20,48 @@
   </head>
   <body>
     <div class="container">
-      <form class="row g-3 justify-content-center align-items-center vh-100" action="/scan" method="POST">
+      <form
+        class="row g-3 justify-content-center align-items-end h-50"
+        action="/scanURL"
+        method="POST"
+      >
         <div class="col-md-10 d-block">
           <div class="col-12">
             <input
-            type="text"
-            class="form-control"
-            id="inputUrl"
-            name="url"
-            placeholder="Enter URL"
-          />
+              type="text"
+              class="form-control"
+              id="inputUrl"
+              name="url"
+              placeholder="Enter URL"
+            />
           </div>
           <div class="col-3 mt-3">
             <button type="scan" class="btn btn-primary col-8">Scan</button>
             <a href="/" class="text-muted mx-2 col-4">Back</a>
           </div>
         </div>
+      </form>
+        <form
+          class="row g-3 justify-content-center align-items-start"
+          action="/scanSourceCode"
+          method="POST"
+        >
+          <div class="col-md-10 d-block">
+            <div class="col-12">
+              <input
+                type="text"
+                class="form-control"
+                id="inputUrlGithub"
+                name="urlGithub"
+                placeholder="Enter URL Github"
+              />
+            </div>
+            <div class="col-3 mt-3">
+              <button type="scan" class="btn btn-primary col-8">Scan</button>
+              <a href="/" class="text-muted mx-2 col-4">Back</a>
+            </div>
+          </div>
+      </div>
     </div>
 
     <!-- Latest compiled JavaScript -->
