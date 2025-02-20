@@ -8,7 +8,10 @@ require("dotenv").config();
 
 let containerId = process.env.CONTAINER_ID;
 let containerIdZap = process.env.CONTAINER_ID_ZAP;
+let containerIdServer = process.env.CONTAINER_ID_SERVER;
 let reportPath = process.env.REPORT_PATH;
+let sonarToken = process.env.SONAR_TOKEN;
+let sonarPassword = process.env.SONAR_PASSWORD;
 
 const docker = new Docker(); // Sử dụng cấu hình mặc định (socket Docker)
 
@@ -63,6 +66,84 @@ async function isPortAvailable(port, containerId) {
         resolve(false); // Cổng không khả dụng vì đã được sử dụng
       } else {
         resolve(true); // Cổng khả dụng
+      }
+    });
+  });
+}
+
+async function createContainerSonarQube(projectKey) {
+  return new Promise((resolve, reject) => {
+    const command = [
+      "docker",
+      "run",
+      "--rm",
+      "--network=host",
+      "-e",
+      "SONAR_HOST_URL=http://localhost:9000",
+      "-v",
+      "zap_volume:/zap",
+      "-v",
+      "sonarqube_volume:/usr/src/",
+      "sonarsource/sonar-scanner-cli",
+      "sonar-scanner",
+      `-Dsonar.projectKey=${projectKey}`,
+      `-Dsonar.sources=/usr/src/${projectKey}`,
+      "-Dsonar.host.url=http://localhost:9000",
+      `-Dsonar.token=${sonarToken}`,
+    ];
+
+    exec(command.join(" "), (error, stdout, stderr) => {
+      if (error) {
+        reject(`Error executing command: ${error.message}`);
+        return;
+      }
+
+      if (stderr) {
+        reject(`Error: ${stderr}`);
+        return;
+      }
+
+      resolve(stdout);
+    });
+  });
+}
+
+async function createSonarQubeProject(projectKey) {
+  return new Promise((resolve, reject) => {
+    let projectName = projectKey;
+    let command = [
+      "curl",
+      "-u",
+      `admin:${sonarPassword}`,
+      "-X",
+      "POST",
+      "http://localhost:9000/api/projects/create",
+      "-d",
+      `name=${projectName}`,
+      "-d",
+      `project=${projectKey}`,
+    ];
+
+    exec(command.join(" "), (error, stdout, stderr) => {
+      if (error) {
+        reject(`Error executing command: ${error.message}`);
+        return;
+      }
+
+      // Kiểm tra xem stderr có phải là lỗi thực sự hay không
+      if (stderr && stderr.trim()) {
+        console.warn(`Warning: ${stderr}`);
+      }
+
+      try {
+        let response = JSON.parse(stdout); // Kiểm tra JSON response từ API
+        if (response.errors) {
+          reject(`SonarQube API Error: ${JSON.stringify(response.errors)}`);
+        } else {
+          resolve(response);
+        }
+      } catch (err) {
+        reject(`Invalid response: ${stdout}`);
       }
     });
   });
@@ -160,17 +241,58 @@ let scanZap = async (target) => {
   });
 };
 
-let scanSonarQube = async (target) => {
+let getSourceCodeGithub = async (target) => {
   return new Promise((resolve, reject) => {
     try {
-      // let command = [
-      //   "sonar-scanner",
-      //   "-Dsonar.projectKey=my:project",
-      //   "-Dsonar.sources=.",
-      //   "-Dsonar.host.url=http://sonarqube:9000",
-      //   "-Dsonar.login=admin",
-      //   "-Dsonar.password=admin",
-      // ];
+      let command = ["sh", "-c", `cd sonarqube && git clone ${target}`];
+      execCommandInContainer(containerIdServer, command);
+      console.log("Get Source Code Github successfully");
+      resolve("Get Source Code Github successfully");
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let deleteSourceCodeOnServer = async (target) => {
+  return new Promise((resolve, reject) => {
+    try {
+      let command = ["sh", "-c", `cd sonarqube && rm -r ${target}`];
+      execCommandInContainer(containerIdServer, command);
+      console.log("Delete Source Code Github successfully");
+      resolve("Delete Source Code Github successfully");
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+// let getInfoGithub = async (target) => {
+//   return new Promise((resolve, reject) => {
+//     try {
+//       let command = ["curl", target];
+
+//       execCommandInContainer(containerId, command)
+//         .then((output) => {
+//           resolve(output);
+//         })
+//         .catch((error) => {
+//           reject(error);
+//         });
+//     } catch (error) {
+//       reject(error);
+//     }
+//   });
+// };
+
+let scanSonarQube = async (target) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await getSourceCodeGithub(target);
+      const projectKey = target.split("/").pop().replace(".git", "");
+      await createSonarQubeProject(projectKey);
+      await createContainerSonarQube(projectKey);
+      await deleteSourceCodeOnServer(projectKey);
 
       // execCommandInContainer(containerId, command);
       resolve("Scan SonarQube successfully");
