@@ -10,12 +10,16 @@
   "author": "Hakij",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.7.9",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
+    "child_process": "^1.0.2",
     "dockerode": "^4.0.4",
     "dotenv": "^8.2.0",
     "ejs": "^3.1.5",
-    "express": "^4.17.1",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "multer": "^1.4.5-lts.1",
     "mysql2": "^2.2.5",
     "sequelize": "^6.6.2"
   },
@@ -23,6 +27,8 @@
     "@babel/core": "^7.12.10",
     "@babel/node": "^7.12.10",
     "@babel/preset-env": "^7.12.10",
+    "dependency-check": "^4.1.0",
+    "knip": "^5.45.0",
     "nodemon": "^2.0.7",
     "sequelize-cli": "^6.2.0"
   }

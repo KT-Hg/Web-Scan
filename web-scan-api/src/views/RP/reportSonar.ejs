@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SonarQube Comprehensive Report</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      .container {
+        max-width: 1200px;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin: auto;
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        color: #2c3e50;
+      }
+      h1 {
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 10px;
+      }
+      .section {
+        margin-bottom: 40px;
+      }
+      .summary {
+        display: flex;
+        justify-content: space-between;
+        background: #ecf0f1;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      .summary-item {
+        text-align: center;
+      }
+      .summary-item h2 {
+        margin: 0;
+        font-size: 2.5em;
+        color: #3498db;
+      }
+      .summary-item p {
+        margin: 0;
+        font-size: 1.1em;
+        color: #7f8c8d;
+      }
+      .issue,
+      .component {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+      }
+      .severity {
+        padding: 6px 12px;
+        border-radius: 5px;
+        color: #fff;
+        font-weight: bold;
+      }
+      .CRITICAL {
+        background-color: #e74c3c;
+      }
+      .MAJOR {
+        background-color: #f39c12;
+      }
+      .MINOR {
+        background-color: #3498db;
+      }
+      .flow-toggle {
+        cursor: pointer;
+        color: #3498db;
+        text-decoration: underline;
+        font-weight: bold;
+      }
+      .flow-content {
+        display: none;
+        padding-top: 10px;
+      }
+      .impact {
+        font-weight: bold;
+        background: #ecf0f1;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 5px;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 50px;
+        font-size: 0.9em;
+        color: #7f8c8d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>SonarQube Comprehensive Report</h1>
+
+      <div class="section">
+        <h2>Summary</h2>
+        <div class="summary">
+          <div class="summary-item">
+            <h2><%= data.total %></h2>
+            <p>Total Issues</p>
+          </div>
+          <div class="summary-item">
+            <h2><%= data.effortTotal %></h2>
+            <p>Total Effort (minutes)</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Issues Overview</h2>
+        <% data.issues.forEach(issue => { %>
+        <div class="issue">
+          <h3>Issue ID: <%= issue.key %></h3>
+          <p><strong>Severity:</strong> <span class="severity <%= issue.severity %>"><%= issue.severity %></span></p>
+          <p><strong>Rule:</strong> <%= issue.rule %></p>
+          <p><strong>Component:</strong> <%= issue.component %></p>
+          <p><strong>Line:</strong> <%= issue.line %></p>
+          <p><strong>Status:</strong> <%= issue.status %></p>
+          <p><strong>Message:</strong> <%= issue.message %></p>
+          <p><strong>Effort:</strong> <%= issue.effort %></p>
+          <p><strong>Debt:</strong> <%= issue.debt %></p>
+          <p><strong>Author:</strong> <%= issue.author || 'N/A' %></p>
+          <p><strong>Tags:</strong> <%= issue.tags.join(", ") %></p>
+          <p><strong>Creation Date:</strong> <%= issue.creationDate %></p>
+          <p><strong>Update Date:</strong> <%= issue.updateDate %></p>
+          <p><strong>Quick Fix Available:</strong> <%= issue.quickFixAvailable ? 'Yes' : 'No' %></p>
+          <p><strong>Clean Code Attribute:</strong> <%= issue.cleanCodeAttribute %> (<%= issue.cleanCodeAttributeCategory %>)</p>
+          <h4>Impacts:</h4>
+          <% issue.impacts.forEach(impact => { %>
+          <p class="impact"><%= impact.softwareQuality %>: <%= impact.severity %></p>
+          <% }) %>
+          <h4>Flows: <span class="flow-toggle" onclick="toggleFlow('<%= issue.key %>')">Show/Hide Details</span></h4>
+          <div id="flow-<%= issue.key %>" class="flow-content">
+            <% issue.flows.forEach(flow => { %> <% flow.locations.forEach(location => { %>
+            <div class="impact">
+              <p><strong>Component:</strong> <%= location.component %></p>
+              <p><strong>Start Line:</strong> <%= location.textRange.startLine %></p>
+              <p><strong>End Line:</strong> <%= location.textRange.endLine %></p>
+              <p><strong>Message:</strong> <%= location.msg %></p>
+            </div>
+            <% }) %> <% }) %>
+          </div>
+        </div>
+        <% }) %>
+      </div>
+
+      <div class="section">
+        <h2>Components Overview</h2>
+        <% data.components.forEach(component => { %>
+        <div class="component">
+          <h3><%= component.name %></h3>
+          <p><strong>Key:</strong> <%= component.key %></p>
+          <p><strong>Path:</strong> <%= component.path %></p>
+          <p><strong>Enabled:</strong> <%= component.enabled %></p>
+          <p><strong>Qualifier:</strong> <%= component.qualifier %></p>
+        </div>
+        <% }) %>
+      </div>
+
+      <div class="footer">
+        <p>Generated by SonarQube Report System | <%= new Date().toLocaleDateString() %></p>
+      </div>
+    </div>
+
+    <script>
+      function toggleFlow(issueKey) {
+        const flowContent = document.getElementById(`flow-${issueKey}`);
+        flowContent.style.display = flowContent.style.display === "none" ? "block" : "none";
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trivy Security Report</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        padding: 20px;
+      }
+      h1,
+      h2 {
+        color: #333;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background-color: #f4f4f4;
+      }
+      .critical {
+        color: red;
+      }
+      .high {
+        color: orange;
+      }
+      .medium {
+        color: gold;
+      }
+      .low {
+        color: green;
+      }
+      .unknown {
+        color: grey;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Trivy Security Report</h1>
+    <% data.Results.forEach(result => { %>
+    <h2>Target: <%= result.Target %></h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Package Name</th>
+          <th>Installed Version</th>
+          <th>Vulnerability ID</th>
+          <th>Severity</th>
+          <th>Description</th>
+          <th>Fixed Version</th>
+          <th>References</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% result.Vulnerabilities.forEach(vuln => { %>
+        <tr>
+          <td><%= vuln.PkgName %></td>
+          <td><%= vuln.InstalledVersion %></td>
+          <td><a href="<%= vuln.PrimaryURL %>" target="_blank"><%= vuln.VulnerabilityID %></a></td>
+          <td class="<%= vuln.Severity.toLowerCase() %>"><%= vuln.Severity %></td>
+          <td><%= vuln.Description %></td>
+          <td><%= vuln.FixedVersion %></td>
+          <td>
+            <ul>
+              <% vuln.References.forEach(ref => { %>
+              <li><a href="<%= ref %>" target="_blank"><%= ref %></a></li>
+              <% }) %>
+            </ul>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <% }) %>
+  </body>
+</html>

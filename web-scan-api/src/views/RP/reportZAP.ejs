@@ -1,42 +1,193 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>ZAP Report - <%= data['@programName'] %> v<%= data['@version'] %></title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <h1>ZAP Security Report</h1>
-    <h3>Generated on: <%= data['@generated'] %></h3>
-    
-    <% data.site.forEach(function(site) { %>
-        <div class="site">
-            <h2>Site: <%= site['@name'] %> (<%= site['@host'] %>:<%= site['@port'] %>)</h2>
-            <p>SSL: <%= site['@ssl'] === 'true' ? 'Enabled' : 'Disabled' %></p>
-            
-            <% if (site.alerts.length > 0) { %>
-                <table class="alerts">
-                    <tr>
-                        <th>Alert</th>
-                        <th>Risk</th>
-                        <th>Description</th>
-                        <th>Solution</th>
-                        <th>Reference</th>
-                    </tr>
-                    <% site.alerts.forEach(function(alert) { %>
-                        <tr class="risk-<%= alert.riskcode %>">
-                            <td><%= alert.alert %></td>
-                            <td><%= alert.riskdesc %></td>
-                            <td><%= alert.desc %></td>
-                            <td><%= alert.solution %></td>
-                            <td><%= alert.reference %></td>
-                        </tr>
-                    <% }); %>
-                </table>
-            <% } else { %>
-                <p>No alerts found for this site.</p>
-            <% } %>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ZAP Security Report</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      .container {
+        max-width: 1200px;
+        background: #fff;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin: auto;
+      }
+      h1,
+      h2,
+      h3,
+      h4 {
+        color: #2c3e50;
+      }
+      h1 {
+        border-bottom: 3px solid #3498db;
+        padding-bottom: 10px;
+      }
+      .section {
+        margin-bottom: 40px;
+      }
+      .summary {
+        display: flex;
+        justify-content: space-between;
+        background: #ecf0f1;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      .summary-item {
+        text-align: center;
+      }
+      .summary-item h2 {
+        margin: 0;
+        font-size: 2.5em;
+        color: #3498db;
+      }
+      .summary-item p {
+        margin: 0;
+        font-size: 1.1em;
+        color: #7f8c8d;
+      }
+      .alert,
+      .site {
+        border: 1px solid #ddd;
+        padding: 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+      }
+      .severity {
+        padding: 6px 12px;
+        border-radius: 5px;
+        color: #fff;
+        font-weight: bold;
+      }
+      .HIGH {
+        background-color: #e74c3c;
+      }
+      .MEDIUM {
+        background-color: #f39c12;
+      }
+      .LOW {
+        background-color: #3498db;
+      }
+      .flow-toggle {
+        cursor: pointer;
+        color: #3498db;
+        text-decoration: underline;
+        font-weight: bold;
+      }
+      .flow-content {
+        display: none;
+        padding-top: 10px;
+      }
+      .flow-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 10px;
+      }
+      .flow-table th,
+      .flow-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      .flow-table th {
+        background-color: #f4f4f4;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 50px;
+        font-size: 0.9em;
+        color: #7f8c8d;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>ZAP Security Report</h1>
+      <p><strong>Program:</strong> <%= data['@programName'] %></p>
+      <p><strong>Version:</strong> <%= data['@version'] %></p>
+      <p><strong>Generated on:</strong> <%= data['@generated'] %></p>
+
+      <div class="section">
+        <h2>Summary</h2>
+        <div class="summary">
+          <div class="summary-item">
+            <h2><%= data.site.length %></h2>
+            <p>Total Sites Scanned</p>
+          </div>
+          <div class="summary-item">
+            <h2><%= data.site.reduce((total, site) => total + site.alerts.length, 0) %></h2>
+            <p>Total Alerts Found</p>
+          </div>
         </div>
-    <% }); %>
-</body>
+      </div>
+
+      <div class="section">
+        <h2>Site Details</h2>
+        <% data.site.forEach(site => { %>
+        <div class="site">
+          <h3>Site: <%= site['@name'] %></h3>
+          <p><strong>Host:</strong> <%= site['@host'] %></p>
+          <p><strong>Port:</strong> <%= site['@port'] %></p>
+          <p><strong>SSL:</strong> <%= site['@ssl'] === 'true' ? 'Enabled' : 'Disabled' %></p>
+          <h4>Alerts:</h4>
+          <% if (site.alerts.length > 0) { %> <% site.alerts.forEach(alert => { %>
+          <div class="alert">
+            <h3>Alert: <%= alert.alert %></h3>
+            <p><strong>Risk:</strong> <span class="severity <%= alert.riskdesc.split(' ')[0].toUpperCase() %>"><%= alert.riskdesc %></span></p>
+            <p><strong>Description:</strong> <%= alert.desc %></p>
+            <h4>Instances: <span class="flow-toggle" onclick="toggleFlow('<%= alert.pluginid %>')">Show/Hide Details</span></h4>
+            <div id="flow-<%= alert.pluginid %>" class="flow-content">
+              <table class="flow-table">
+                <thead>
+                  <tr>
+                    <th>Method</th>
+                    <th>URI</th>
+                    <th>Parameter</th>
+                    <th>Attack</th>
+                    <th>Evidence</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% alert.instances.forEach(instance => { %>
+                  <tr>
+                    <td><%= instance.method %></td>
+                    <td><%= instance.uri %></td>
+                    <td><%= instance.param || 'N/A' %></td>
+                    <td><%= instance.attack || 'N/A' %></td>
+                    <td><%= instance.evidence || 'N/A' %></td>
+                  </tr>
+                  <% }) %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <% }) %> <% } else { %>
+          <p>No alerts found for this site.</p>
+          <% } %>
+        </div>
+        <% }) %>
+      </div>
+
+      <div class="footer">
+        <p>Generated by ZAP Security Scanner | <%= new Date().toLocaleDateString() %></p>
+      </div>
+    </div>
+
+    <script>
+      function toggleFlow(pluginid) {
+        const flowContent = document.getElementById(`flow-${pluginid}`);
+        flowContent.style.display = flowContent.style.display === "none" ? "block" : "none";
+      }
+    </script>
+  </body>
 </html>

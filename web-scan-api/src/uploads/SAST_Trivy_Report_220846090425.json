@@ -1,0 +1,560 @@
+{
+  "SchemaVersion": 2,
+  "CreatedAt": "2025-04-09T15:09:24.709276626Z",
+  "ArtifactName": "/app",
+  "ArtifactType": "filesystem",
+  "Metadata": {
+    "ImageConfig": {
+      "architecture": "",
+      "created": "0001-01-01T00:00:00Z",
+      "os": "",
+      "rootfs": {
+        "type": "",
+        "diff_ids": null
+      },
+      "config": {}
+    }
+  },
+  "Results": [
+    {
+      "Target": "web-scan-api/package-lock.json",
+      "Class": "lang-pkgs",
+      "Type": "npm",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2024-21508",
+          "PkgID": "mysql2@2.3.3",
+          "PkgName": "mysql2",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/mysql2@2.3.3",
+            "UID": "5c470e5fcabe709f"
+          },
+          "InstalledVersion": "2.3.3",
+          "FixedVersion": "3.9.4",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-21508",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "mysql2: Remote Code Execution",
+          "Description": "Versions of the package mysql2 before 3.9.4 are vulnerable to Remote Code Execution (RCE) via the readCodeFor function due to improper validation of the supportBigNumbers and bigNumberStrings values.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-94"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2024-21508",
+            "https://blog.slonser.info/posts/mysql2-attacker-configuration",
+            "https://blog.slonser.info/posts/mysql2-attacker-configuration/",
+            "https://github.com/sidorares/node-mysql2",
+            "https://github.com/sidorares/node-mysql2/blob/1609b5393516d72a4ae47196837317fbe75e0c13/lib/parsers/text_parser.js%23L14C10-L14C21",
+            "https://github.com/sidorares/node-mysql2/commit/74abf9ef94d76114d9a09415e28b496522a94805",
+            "https://github.com/sidorares/node-mysql2/pull/2572",
+            "https://github.com/sidorares/node-mysql2/releases/tag/v3.9.4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-21508",
+            "https://security.snyk.io/vuln/SNYK-JS-MYSQL2-6591085",
+            "https://www.cve.org/CVERecord?id=CVE-2024-21508"
+          ],
+          "PublishedDate": "2024-04-11T05:15:47.263Z",
+          "LastModifiedDate": "2024-11-21T08:54:34.803Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-21511",
+          "PkgID": "mysql2@2.3.3",
+          "PkgName": "mysql2",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/mysql2@2.3.3",
+            "UID": "5c470e5fcabe709f"
+          },
+          "InstalledVersion": "2.3.3",
+          "FixedVersion": "3.9.7",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-21511",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "mysql2: Arbitrary Code Injection due to improper sanitization of the timezone parameter",
+          "Description": "Versions of the package mysql2 before 3.9.7 are vulnerable to Arbitrary Code Injection due to improper sanitization of the timezone parameter in the readCodeFor function by calling a native MySQL Server date/time function.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-94"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+              "V3Score": 9.8
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2024-21511",
+            "https://github.com/sidorares/node-mysql2",
+            "https://github.com/sidorares/node-mysql2/commit/7d4b098c7e29d5a6cb9eac2633bfcc2f0f1db713",
+            "https://github.com/sidorares/node-mysql2/pull/2608",
+            "https://github.com/sidorares/node-mysql2/releases/tag/v3.9.7",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-21511",
+            "https://security.snyk.io/vuln/SNYK-JS-MYSQL2-6670046",
+            "https://www.cve.org/CVERecord?id=CVE-2024-21511"
+          ],
+          "PublishedDate": "2024-04-23T05:15:48.963Z",
+          "LastModifiedDate": "2024-11-21T08:54:35.18Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-21512",
+          "PkgID": "mysql2@2.3.3",
+          "PkgName": "mysql2",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/mysql2@2.3.3",
+            "UID": "5c470e5fcabe709f"
+          },
+          "InstalledVersion": "2.3.3",
+          "FixedVersion": "3.9.8",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-21512",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "mysql2: vulnerable to Prototype Pollution due to improper user input sanitization",
+          "Description": "Versions of the package mysql2 before 3.9.8 are vulnerable to Prototype Pollution due to improper user input sanitization passed to fields and tables when using nestTables.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1321"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:L",
+              "V3Score": 8.2
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:L",
+              "V3Score": 8.2
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2024-21512",
+            "https://gist.github.com/domdomi3/e9f0f9b9b1ed6bfbbc0bea87c5ca1e4a",
+            "https://github.com/sidorares/node-mysql2",
+            "https://github.com/sidorares/node-mysql2/commit/efe3db527a2c94a63c2d14045baba8dfefe922bc",
+            "https://github.com/sidorares/node-mysql2/pull/2702",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-21512",
+            "https://security.snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-7176010",
+            "https://security.snyk.io/vuln/SNYK-JS-MYSQL2-6861580",
+            "https://www.cve.org/CVERecord?id=CVE-2024-21512"
+          ],
+          "PublishedDate": "2024-05-29T05:16:08.353Z",
+          "LastModifiedDate": "2024-11-21T08:54:35.3Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-21507",
+          "PkgID": "mysql2@2.3.3",
+          "PkgName": "mysql2",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/mysql2@2.3.3",
+            "UID": "5c470e5fcabe709f"
+          },
+          "InstalledVersion": "2.3.3",
+          "FixedVersion": "3.9.3",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-21507",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "mysql2: Improper Input Validation",
+          "Description": "Versions of the package mysql2 before 3.9.3 are vulnerable to Improper Input Validation through the keyFromFields function, resulting in cache poisoning. An attacker can inject a colon (:) character within a value of the attacker-crafted key.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-20"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:L",
+              "V3Score": 6.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:L",
+              "V3Score": 6.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2024-21507",
+            "https://blog.slonser.info/posts/mysql2-attacker-configuration",
+            "https://blog.slonser.info/posts/mysql2-attacker-configuration/",
+            "https://github.com/sidorares/node-mysql2",
+            "https://github.com/sidorares/node-mysql2/commit/0d54b0ca6498c823098426038162ef10df02c818",
+            "https://github.com/sidorares/node-mysql2/pull/2424",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-21507",
+            "https://security.snyk.io/vuln/SNYK-JS-MYSQL2-6591300",
+            "https://www.cve.org/CVERecord?id=CVE-2024-21507"
+          ],
+          "PublishedDate": "2024-04-10T05:15:48.29Z",
+          "LastModifiedDate": "2024-11-21T08:54:34.667Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-21509",
+          "PkgID": "mysql2@2.3.3",
+          "PkgName": "mysql2",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/mysql2@2.3.3",
+            "UID": "5c470e5fcabe709f"
+          },
+          "InstalledVersion": "2.3.3",
+          "FixedVersion": "3.9.4",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-21509",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "mysql2: Prototype Poisoning",
+          "Description": "Versions of the package mysql2 before 3.9.4 are vulnerable to Prototype Poisoning due to insecure results object creation and improper user input sanitization passed through parserFn in text_parser.js and binary_parser.js.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-1321"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L",
+              "V3Score": 6.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L",
+              "V3Score": 6.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2024-21509",
+            "https://blog.slonser.info/posts/mysql2-attacker-configuration",
+            "https://blog.slonser.info/posts/mysql2-attacker-configuration/",
+            "https://github.com/sidorares/node-mysql2",
+            "https://github.com/sidorares/node-mysql2/blob/fd3d117da82cc5c5fa5a3701d7b33ca77691bc61/lib/parsers/text_parser.js%23L134",
+            "https://github.com/sidorares/node-mysql2/commit/4a964a3910a4b8de008696c554ab1b492e9b4691",
+            "https://github.com/sidorares/node-mysql2/pull/2574",
+            "https://github.com/sidorares/node-mysql2/releases/tag/v3.9.4",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-21509",
+            "https://security.snyk.io/vuln/SNYK-JS-MYSQL2-6591084",
+            "https://www.cve.org/CVERecord?id=CVE-2024-21509"
+          ],
+          "PublishedDate": "2024-04-10T05:15:48.547Z",
+          "LastModifiedDate": "2024-11-21T08:54:34.94Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2024-12905",
+          "PkgID": "tar-fs@2.0.1",
+          "PkgName": "tar-fs",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/tar-fs@2.0.1",
+            "UID": "2b0a53e4539b1e27"
+          },
+          "InstalledVersion": "2.0.1",
+          "FixedVersion": "1.16.4, 2.1.2, 3.0.8",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2024-12905",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "tar-fs: link following and path traversal via maliciously crafted tar file",
+          "Description": "An Improper Link Resolution Before File Access (\"Link Following\") and Improper Limitation of a Pathname to a Restricted Directory (\"Path Traversal\"). This vulnerability occurs when extracting a maliciously crafted tar file, which can result in unauthorized file writes or overwrites outside the intended extraction directory. The issue is associated with index.js in the tar-fs package.\n\nThis issue affects tar-fs: from 0.0.0 before 1.16.4, from 2.0.0 before 2.1.2, from 3.0.0 before 3.0.8.",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-22",
+            "CWE-59"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "redhat": 3
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:H/A:N",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2024-12905",
+            "https://github.com/mafintosh/tar-fs",
+            "https://github.com/mafintosh/tar-fs/commit/a1dd7e7c7f4b4a8bd2ab60f513baca573b44e2ed",
+            "https://nvd.nist.gov/vuln/detail/CVE-2024-12905",
+            "https://www.cve.org/CVERecord?id=CVE-2024-12905"
+          ],
+          "PublishedDate": "2025-03-27T17:15:53.25Z",
+          "LastModifiedDate": "2025-03-28T18:11:40.18Z"
+        }
+      ]
+    },
+    {
+      "Target": "web-scan-ui/package-lock.json",
+      "Class": "lang-pkgs",
+      "Type": "npm",
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2025-27789",
+          "PkgID": "@babel/helpers@7.26.0",
+          "PkgName": "@babel/helpers",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/%40babel/helpers@7.26.0",
+            "UID": "3e8ef04e309c2ba"
+          },
+          "InstalledVersion": "7.26.0",
+          "FixedVersion": "7.26.10, 8.0.0-alpha.17",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-27789",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "Babel is a compiler for writing next generation JavaScript. When using ...",
+          "Description": "Babel is a compiler for writing next generation JavaScript. When using versions of Babel prior to 7.26.10 and 8.0.0-alpha.17 to compile regular expression named capturing groups, Babel will generate a polyfill for the `.replace` method that has quadratic complexity on some specific replacement pattern strings (i.e. the second argument passed to `.replace`). Generated code is vulnerable if all the following conditions are true: Using Babel to compile regular expression named capturing groups, using the `.replace` method on a regular expression that contains named capturing groups, and the code using untrusted strings as the second argument of `.replace`. This problem has been fixed in `@babel/helpers` and `@babel/runtime` 7.26.10 and 8.0.0-alpha.17. It's likely that individual users do not directly depend on `@babel/helpers`, and instead depend on `@babel/core` (which itself depends on `@babel/helpers`). Upgrading to `@babel/core` 7.26.10 is not required, but it guarantees use of a new enough `@babel/helpers` version. Note that just updating Babel dependencies is not enough; one will also need to re-compile the code. No known workarounds are available.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 6.2
+            }
+          },
+          "References": [
+            "https://github.com/babel/babel",
+            "https://github.com/babel/babel/commit/d5952e80c0faa5ec20e35085531b6e572d31dad4",
+            "https://github.com/babel/babel/pull/17173",
+            "https://github.com/babel/babel/security/advisories/GHSA-968p-4wvh-cqc8",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-27789"
+          ],
+          "PublishedDate": "2025-03-11T20:15:18.33Z",
+          "LastModifiedDate": "2025-03-11T20:15:18.33Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-27789",
+          "PkgID": "@babel/runtime@7.26.0",
+          "PkgName": "@babel/runtime",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/%40babel/runtime@7.26.0",
+            "UID": "13a18a87d1cf9b8a"
+          },
+          "InstalledVersion": "7.26.0",
+          "FixedVersion": "7.26.10, 8.0.0-alpha.17",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-27789",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "Babel is a compiler for writing next generation JavaScript. When using ...",
+          "Description": "Babel is a compiler for writing next generation JavaScript. When using versions of Babel prior to 7.26.10 and 8.0.0-alpha.17 to compile regular expression named capturing groups, Babel will generate a polyfill for the `.replace` method that has quadratic complexity on some specific replacement pattern strings (i.e. the second argument passed to `.replace`). Generated code is vulnerable if all the following conditions are true: Using Babel to compile regular expression named capturing groups, using the `.replace` method on a regular expression that contains named capturing groups, and the code using untrusted strings as the second argument of `.replace`. This problem has been fixed in `@babel/helpers` and `@babel/runtime` 7.26.10 and 8.0.0-alpha.17. It's likely that individual users do not directly depend on `@babel/helpers`, and instead depend on `@babel/core` (which itself depends on `@babel/helpers`). Upgrading to `@babel/core` 7.26.10 is not required, but it guarantees use of a new enough `@babel/helpers` version. Note that just updating Babel dependencies is not enough; one will also need to re-compile the code. No known workarounds are available.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 6.2
+            }
+          },
+          "References": [
+            "https://github.com/babel/babel",
+            "https://github.com/babel/babel/commit/d5952e80c0faa5ec20e35085531b6e572d31dad4",
+            "https://github.com/babel/babel/pull/17173",
+            "https://github.com/babel/babel/security/advisories/GHSA-968p-4wvh-cqc8",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-27789"
+          ],
+          "PublishedDate": "2025-03-11T20:15:18.33Z",
+          "LastModifiedDate": "2025-03-11T20:15:18.33Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2021-3803",
+          "PkgID": "nth-check@1.0.2",
+          "PkgName": "nth-check",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/nth-check@1.0.2",
+            "UID": "2cad0e291bd19229"
+          },
+          "InstalledVersion": "1.0.2",
+          "FixedVersion": "2.0.1",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2021-3803",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "nodejs-nth-check: inefficient regular expression complexity",
+          "Description": "nth-check is vulnerable to Inefficient Regular Expression Complexity",
+          "Severity": "HIGH",
+          "CweIDs": [
+            "CWE-1333"
+          ],
+          "VendorSeverity": {
+            "ghsa": 3,
+            "nvd": 3,
+            "redhat": 2,
+            "ubuntu": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            },
+            "nvd": {
+              "V2Vector": "AV:N/AC:L/Au:N/C:N/I:N/A:P",
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V2Score": 5,
+              "V3Score": 7.5
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+              "V3Score": 7.5
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2021-3803",
+            "https://github.com/advisories/GHSA-rp65-9cf3-cjxr",
+            "https://github.com/fb55/nth-check",
+            "https://github.com/fb55/nth-check/commit/9894c1d2010870c351f66c6f6efcf656e26bb726",
+            "https://github.com/fb55/nth-check/commit/9894c1d2010870c351f66c6f6efcf656e26bb726 (v2.0.1)",
+            "https://huntr.dev/bounties/8cf8cc06-d2cf-4b4e-b42c-99fafb0b04d0",
+            "https://huntr.dev/bounties/8cf8cc06-d2cf-4b4e-b42c-99fafb0b04d0/",
+            "https://lists.debian.org/debian-lts-announce/2023/05/msg00023.html",
+            "https://nvd.nist.gov/vuln/detail/CVE-2021-3803",
+            "https://ubuntu.com/security/notices/USN-6114-1",
+            "https://www.cve.org/CVERecord?id=CVE-2021-3803"
+          ],
+          "PublishedDate": "2021-09-17T07:15:09.153Z",
+          "LastModifiedDate": "2024-11-21T06:22:28.873Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2023-44270",
+          "PkgID": "postcss@7.0.39",
+          "PkgName": "postcss",
+          "PkgIdentifier": {
+            "PURL": "pkg:npm/postcss@7.0.39",
+            "UID": "6f520af866e452db"
+          },
+          "InstalledVersion": "7.0.39",
+          "FixedVersion": "8.4.31",
+          "Status": "fixed",
+          "Layer": {},
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-44270",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory npm",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Anpm"
+          },
+          "Title": "PostCSS: Improper input validation in PostCSS",
+          "Description": "An issue was discovered in PostCSS before 8.4.31. The vulnerability affects linters using PostCSS to parse external untrusted CSS. An attacker can prepare CSS in such a way that it will contains parts parsed by PostCSS as a CSS comment. After processing by PostCSS, it will be included in the PostCSS output in CSS nodes (rules, properties) despite being included in a comment.",
+          "Severity": "MEDIUM",
+          "CweIDs": [
+            "CWE-74"
+          ],
+          "VendorSeverity": {
+            "ghsa": 2,
+            "nvd": 2,
+            "redhat": 2
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
+            },
+            "nvd": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
+            },
+            "redhat": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:N",
+              "V3Score": 5.3
+            }
+          },
+          "References": [
+            "https://access.redhat.com/security/cve/CVE-2023-44270",
+            "https://github.com/github/advisory-database/issues/2820",
+            "https://github.com/postcss/postcss",
+            "https://github.com/postcss/postcss/blob/main/lib/tokenize.js#L25",
+            "https://github.com/postcss/postcss/commit/58cc860b4c1707510c9cd1bc1fa30b423a9ad6c5",
+            "https://github.com/postcss/postcss/releases/tag/8.4.31",
+            "https://nvd.nist.gov/vuln/detail/CVE-2023-44270",
+            "https://www.cve.org/CVERecord?id=CVE-2023-44270"
+          ],
+          "PublishedDate": "2023-09-29T22:15:11.867Z",
+          "LastModifiedDate": "2024-11-21T08:25:33.443Z"
+        }
+      ]
+    }
+  ]
+}

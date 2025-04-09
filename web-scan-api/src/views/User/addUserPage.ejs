@@ -1,0 +1,111 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Latest compiled and minified CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+      integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <style>
+      #togglePassword {
+        float: right;
+        margin-left: -25px;
+        margin-top: -27px;
+        right: 10px;
+        position: relative;
+        z-index: 2;
+      }
+    </style>
+
+    <title>Web Scan</title>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="row">
+        <form class="row g-3" action="/addUser" method="POST">
+          <div class="col-md-6">
+            <label for="inputFirstName" class="form-label">First Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputFirstName"
+              name="firstName"
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="inputLastName" class="form-label">Last Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="inputLastName"
+              name="lastName"
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="inputEmail" class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="inputEmail"
+              name="email"
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="inputPassword" class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="inputPassword"
+              name="password"
+            />
+            <i class="fa-regular fa-eye-slash" id="togglePassword"></i>
+          </div>
+          <div class="col-md-4">
+            <label for="inputGender" class="form-label">Sex</label>
+            <select id="inputGender" class="form-select" name="gender">
+              <option value="0" selected>Male</option>
+              <option value="1">Female</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label for="inputRole" class="form-label">Role</label>
+            <select id="inputRole" class="form-select" name="role">
+              <option value="0" selected>User</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="/homeUser" class="text-muted mx-2">Back</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const togglePassword = document.querySelector("#togglePassword");
+      const password = document.querySelector("#inputPassword");
+      togglePassword.addEventListener("click", () => {
+        // Toggle the type attribute using
+        // getAttribure() method
+        const type =
+          password.getAttribute("type") === "password" ? "text" : "password";
+        password.setAttribute("type", type);
+        // Toggle the eye and bi-eye icon
+        togglePassword.classList.toggle("fa-eye-slash");
+        togglePassword.classList.toggle("fa-eye");
+      });
+    </script>
+  </body>
+</html>

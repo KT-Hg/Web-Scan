@@ -1,9 +1,14 @@
 import db from "../models/index";
 import net from "net";
+import axios from "axios";
 import moment from "moment";
 import Docker from "dockerode";
+import downloadSonarQubeReport from "./downloadrp.js";
 import { exec } from "child_process";
+import path from "path";
+import fs from "fs/promises";
 import { readFile } from "fs/promises";
+import { console } from "inspector";
 require("dotenv").config();
 
 let containerId = process.env.CONTAINER_ID;
@@ -160,50 +165,24 @@ async function getAvailablePort(startPort, containerId, range = 100) {
   throw new Error("No available ports found");
 }
 
-let scanNmap = async (target) => {
-  return new Promise((resolve, reject) => {
-    try {
-      let command = ["nmap", "-oX", "/tmp/nmap-output.xml", target];
-
-      execCommandInContainer(containerId, command);
-      resolve("Scan Nmap successfully");
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let scanSkipfish = async (target) => {
-  return new Promise((resolve, reject) => {
-    try {
-      let command = ["skipfish", "-o", "/tmp/skipfish-output", target];
-
-      execCommandInContainer(containerId, command);
-      resolve("Scan Skipfish successfully");
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let scanNikto = async (target) => {
-  return new Promise((resolve, reject) => {
-    try {
-      let command = ["nikto", "-h", target];
-
-      execCommandInContainer(containerId, command);
-      resolve("Scan Nikto successfully");
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
 let scanWapiti = async (target) => {
   return new Promise((resolve, reject) => {
     try {
-      let command = ["wapiti", "--url", target];
-
+      const timestamp = moment().format("HHmmssDDMMYY");
+      const reportPath = `/tmp/DAST_Wapiti_Report_${timestamp}.json`;
+      console.log(reportPath);
+      let command = [
+        "wapiti",
+        "--url",
+        target,
+        "-m",
+        "htaccess,methods,cookieflags,http_headers,sql,csp,wapp,brute_login_form,csrf,ssrf",
+        "-f",
+        "json",
+        "-o",
+        reportPath,
+        "--flush-session",
+      ];
       execCommandInContainer(containerId, command);
       resolve("Scan Wapiti successfully");
     } catch (error) {
@@ -212,15 +191,14 @@ let scanWapiti = async (target) => {
   });
 };
 
-let scanZap = async (target) => {
+let scanZAP = async (target) => {
   return new Promise(async (resolve, reject) => {
     try {
       let command = ["rm", "-rf", "/home/zap/.ZAP_D/"];
       execCommandInContainer(containerIdZap, command);
       const timestamp = moment().format("HHmmssDDMMYY");
-      const reportPath = `/tmp/report${timestamp}.json`;
+      const reportPath = `/tmp/DAST_ZAP_Report_${timestamp}.json`;
       const freePort = await getAvailablePort(8080, containerIdZap);
-      console.log(freePort.toString());
 
       command = [
         "zap.sh",
@@ -254,6 +232,112 @@ let getSourceCodeGithub = async (target) => {
   });
 };
 
+const scanTrivy = async (target) => {
+  return new Promise((resolve, reject) => {
+    const uploadDir = path.resolve("./src/uploads");
+    const timestamp = moment().format("HHmmssDDMMYY");
+    const reportPath = path.join(
+      uploadDir,
+      `SAST_Trivy_Report_${timestamp}.json`
+    );
+    const volumeName = "trivy_volume";
+
+    try {
+      // Kiểm tra và tạo volume nếu chưa có
+      exec(`docker volume inspect ${volumeName}`, (error) => {
+        if (error) {
+          console.log(`Volume '${volumeName}' not found. Creating...`);
+          exec(`docker volume create ${volumeName}`, (err) => {
+            if (err) return reject(`Failed to create volume: ${err.message}`);
+            console.log("✅ Docker volume created:", volumeName);
+            cloneAndScan();
+          });
+        } else {
+          console.log(`✅ Using existing volume: ${volumeName}`);
+          cloneAndScan();
+        }
+      });
+
+      // Clone repo và thực hiện quét
+      const cloneAndScan = () => {
+        if (!target.startsWith("https://github.com/")) {
+          return reject("❌ Invalid GitHub repo URL.");
+        }
+
+        const cloneCommand = [
+          "docker",
+          "run",
+          "--rm",
+          "-v",
+          `${volumeName}:/app`,
+          "alpine/git",
+          "clone",
+          target,
+          "/app",
+        ];
+
+        exec(cloneCommand.join(" "), (error) => {
+          if (error) return reject(`❌ Failed to clone repo: ${error.message}`);
+          console.log("✅ Repo cloned successfully into volume.");
+
+          // Chạy Trivy quét bảo mật + secrets
+          const scanCommand = [
+            "docker",
+            "run",
+            "--rm",
+            "-v",
+            `${volumeName}:/app`,
+            "-v",
+            `${uploadDir}:/output`,
+            "aquasec/trivy:latest",
+            "fs",
+            "--format",
+            "json",
+            "-o",
+            `/output/${path.basename(reportPath)}`,
+            "--severity",
+            "CRITICAL,HIGH,MEDIUM,LOW,UNKNOWN",
+            "--scanners",
+            "vuln,secret",
+            "--detection-priority",
+            "comprehensive",
+            "--parallel",
+            "10",
+            "/app",
+          ];
+
+          exec(scanCommand.join(" "), (error, stdout, stderr) => {
+            if (error) return reject(`❌ Trivy scan failed: ${error.message}`);
+            if (stderr) console.warn("⚠️ Trivy warnings:", stderr);
+
+            // Dọn dẹp repo đã clone trong volume
+            const cleanCommand = [
+              "docker",
+              "run",
+              "--rm",
+              "-v",
+              `${volumeName}:/app`,
+              "alpine",
+              "sh",
+              "-c",
+              '"rm -rf /app/*"',
+            ];
+
+            exec(cleanCommand.join(" "), (err) => {
+              if (err) console.error("❌ Failed to clean volume:", err.message);
+              else console.log("✅ Cleaned up repo from volume.");
+              console.log("📄 Report saved at:", reportPath);
+              resolve(reportPath);
+            });
+          });
+        });
+      };
+    } catch (error) {
+      reject(`❌ Unexpected error: ${error.message}`);
+    }
+  });
+};
+
 let deleteSourceCodeOnServer = async (target) => {
   return new Promise((resolve, reject) => {
     try {
@@ -267,34 +351,15 @@ let deleteSourceCodeOnServer = async (target) => {
   });
 };
 
-// let getInfoGithub = async (target) => {
-//   return new Promise((resolve, reject) => {
-//     try {
-//       let command = ["curl", target];
-
-//       execCommandInContainer(containerId, command)
-//         .then((output) => {
-//           resolve(output);
-//         })
-//         .catch((error) => {
-//           reject(error);
-//         });
-//     } catch (error) {
-//       reject(error);
-//     }
-//   });
-// };
-
 let scanSonarQube = async (target) => {
   return new Promise(async (resolve, reject) => {
     try {
-      await getSourceCodeGithub(target);
       const projectKey = target.split("/").pop().replace(".git", "");
+      console.log("Project Key:", projectKey);
+      await getSourceCodeGithub(target);
       await createSonarQubeProject(projectKey);
       await createContainerSonarQube(projectKey);
       await deleteSourceCodeOnServer(projectKey);
-
-      // execCommandInContainer(containerId, command);
       resolve("Scan SonarQube successfully");
     } catch (error) {
       reject(error);
@@ -315,11 +380,9 @@ let getReport = async (reportName) => {
 };
 
 module.exports = {
-  scanNmap: scanNmap,
-  scanSkipfish: scanSkipfish,
-  scanNikto: scanNikto,
   scanWapiti: scanWapiti,
-  scanZap: scanZap,
+  scanZAP: scanZAP,
   scanSonarQube: scanSonarQube,
+  scanTrivy: scanTrivy,
   getReport: getReport,
 };
