@@ -1,6 +1,7 @@
 import { exec } from "child_process";
 import fs from "fs";
 import path from "path";
+import moment from "moment";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -25,11 +26,7 @@ async function checkSonarQubeStatus(projectKey) {
   }
 }
 
-async function waitForSonarQubeCompletion(
-  projectKey,
-  maxRetries = 20,
-  interval = 5000
-) {
+async function waitForSonarQubeCompletion(projectKey, maxRetries = 20, interval = 5000) {
   let retries = 0;
 
   while (retries < maxRetries) {
@@ -44,9 +41,7 @@ async function waitForSonarQubeCompletion(
       throw new Error("SonarQube analysis failed!");
     }
 
-    console.log(
-      `SonarQube analysis in progress... (${retries + 1}/${maxRetries})`
-    );
+    console.log(`SonarQube analysis in progress... (${retries + 1}/${maxRetries})`);
     await new Promise((resolve) => setTimeout(resolve, interval));
     retries++;
   }
@@ -61,10 +56,7 @@ async function downloadSonarQubeReport(projectKey) {
       fs.mkdirSync(reportDir, { recursive: true }); // Tạo thư mục nếu chưa có
     }
     const timestamp = moment().format("HHmmssDDMMYY");
-    const reportPath = path.join(
-      reportDir,
-      `SAST_SonarQube_Report_${timestamp}.json`
-    );
+    const reportPath = path.join(reportDir, `SAST_SonarQube_Report_${timestamp}.json`);
 
     // Lệnh curl để tải báo cáo từ SonarQube
     const curlCommand = `curl -u admin:${sonarPassword} "http://localhost:9000/api/issues/search?componentKeys=${projectKey}&resolved=false" -o "${reportPath}"`;

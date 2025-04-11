@@ -116,18 +116,7 @@ async function createContainerSonarQube(projectKey) {
 async function createSonarQubeProject(projectKey) {
   return new Promise((resolve, reject) => {
     let projectName = projectKey;
-    let command = [
-      "curl",
-      "-u",
-      `admin:${sonarPassword}`,
-      "-X",
-      "POST",
-      "http://localhost:9000/api/projects/create",
-      "-d",
-      `name=${projectName}`,
-      "-d",
-      `project=${projectKey}`,
-    ];
+    let command = ["curl", "-u", `admin:${sonarPassword}`, "-X", "POST", "http://localhost:9000/api/projects/create", "-d", `name=${projectName}`, "-d", `project=${projectKey}`];
 
     exec(command.join(" "), (error, stdout, stderr) => {
       if (error) {
@@ -171,18 +160,7 @@ let scanWapiti = async (target) => {
       const timestamp = moment().format("HHmmssDDMMYY");
       const reportPath = `/tmp/DAST_Wapiti_Report_${timestamp}.json`;
       console.log(reportPath);
-      let command = [
-        "wapiti",
-        "--url",
-        target,
-        "-m",
-        "htaccess,methods,cookieflags,http_headers,sql,csp,wapp,brute_login_form,csrf,ssrf",
-        "-f",
-        "json",
-        "-o",
-        reportPath,
-        "--flush-session",
-      ];
+      let command = ["wapiti", "--url", target, "-m", "htaccess,methods,cookieflags,http_headers,sql,csp,wapp,brute_login_form,csrf,ssrf", "-f", "json", "-o", reportPath, "--flush-session"];
       execCommandInContainer(containerId, command);
       resolve("Scan Wapiti successfully");
     } catch (error) {
@@ -200,17 +178,7 @@ let scanZAP = async (target) => {
       const reportPath = `/tmp/DAST_ZAP_Report_${timestamp}.json`;
       const freePort = await getAvailablePort(8080, containerIdZap);
 
-      command = [
-        "zap.sh",
-        "-cmd",
-        "-quickurl",
-        target,
-        "-port",
-        freePort.toString(),
-        "-quickprogress",
-        "-quickout",
-        reportPath,
-      ];
+      command = ["zap.sh", "-cmd", "-quickurl", target, "-port", freePort.toString(), "-quickprogress", "-quickout", reportPath];
       execCommandInContainer(containerIdZap, command);
       resolve("Scan ZAP successfully");
     } catch (error) {
@@ -236,10 +204,7 @@ const scanTrivy = async (target) => {
   return new Promise((resolve, reject) => {
     const uploadDir = path.resolve("./src/uploads");
     const timestamp = moment().format("HHmmssDDMMYY");
-    const reportPath = path.join(
-      uploadDir,
-      `SAST_Trivy_Report_${timestamp}.json`
-    );
+    const reportPath = path.join(uploadDir, `SAST_Trivy_Report_${timestamp}.json`);
     const volumeName = "trivy_volume";
 
     try {
@@ -264,17 +229,7 @@ const scanTrivy = async (target) => {
           return reject("❌ Invalid GitHub repo URL.");
         }
 
-        const cloneCommand = [
-          "docker",
-          "run",
-          "--rm",
-          "-v",
-          `${volumeName}:/app`,
-          "alpine/git",
-          "clone",
-          target,
-          "/app",
-        ];
+        const cloneCommand = ["docker", "run", "--rm", "-v", `${volumeName}:/app`, "alpine/git", "clone", target, "/app"];
 
         exec(cloneCommand.join(" "), (error) => {
           if (error) return reject(`❌ Failed to clone repo: ${error.message}`);
@@ -311,17 +266,7 @@ const scanTrivy = async (target) => {
             if (stderr) console.warn("⚠️ Trivy warnings:", stderr);
 
             // Dọn dẹp repo đã clone trong volume
-            const cleanCommand = [
-              "docker",
-              "run",
-              "--rm",
-              "-v",
-              `${volumeName}:/app`,
-              "alpine",
-              "sh",
-              "-c",
-              '"rm -rf /app/*"',
-            ];
+            const cleanCommand = ["docker", "run", "--rm", "-v", `${volumeName}:/app`, "alpine", "sh", "-c", '"rm -rf /app/*"'];
 
             exec(cleanCommand.join(" "), (err) => {
               if (err) console.error("❌ Failed to clean volume:", err.message);
@@ -351,6 +296,79 @@ let deleteSourceCodeOnServer = async (target) => {
   });
 };
 
+async function checkSonarQubeStatus(projectKey) {
+  const sonarUrl = `http://localhost:9000/api/ce/component?component=${projectKey}`;
+  const auth = { username: "admin", password: sonarPassword };
+
+  try {
+    const response = await axios.get(sonarUrl, { auth });
+    const tasks = response.data?.queue || [];
+
+    if (tasks.length === 0) {
+      return "SUCCESS"; // Không có task nào chờ -> đã xong
+    }
+
+    return tasks[0]?.status; // Trả về trạng thái thực tế của SonarQube
+  } catch (error) {
+    console.error("Error checking SonarQube status:", error.response?.data);
+    return "ERROR";
+  }
+}
+
+async function waitForSonarQubeCompletion(
+  projectKey,
+  maxRetries = 20,
+  interval = 5000
+) {
+  let retries = 0;
+
+  while (retries < maxRetries) {
+    const status = await checkSonarQubeStatus(projectKey);
+
+    if (status === "SUCCESS") {
+      console.log("SonarQube analysis completed.");
+      return true;
+    }
+
+    if (status === "ERROR") {
+      throw new Error("SonarQube analysis failed!");
+    }
+
+    console.log(
+      `SonarQube analysis in progress... (${retries + 1}/${maxRetries})`
+    );
+    await new Promise((resolve) => setTimeout(resolve, interval));
+    retries++;
+  }
+
+  throw new Error("SonarQube analysis timed out.");
+}
+
+
+async function deleteSonarQubeProject(projectKey) {
+  return new Promise((resolve, reject) => {
+    const curlCommand = `curl -u admin:${sonarPassword} -X POST "http://localhost:9000/api/projects/delete?project=${projectKey}"`;
+
+    console.log(`Deleting project: ${projectKey}`);
+
+    exec(curlCommand, (error, stdout, stderr) => {
+      if (error) {
+        console.error(`Error deleting project: ${error.message}`);
+        reject(error);
+        return;
+      }
+      if (stderr && stderr.includes("error")) {
+        console.warn(`Warning: ${stderr}`);
+        reject(stderr);
+        return;
+      }
+
+      console.log(`Project ${projectKey} deleted successfully.`);
+      resolve(stdout);
+    });
+  });
+}
+
 let scanSonarQube = async (target) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -359,7 +377,10 @@ let scanSonarQube = async (target) => {
       await getSourceCodeGithub(target);
       await createSonarQubeProject(projectKey);
       await createContainerSonarQube(projectKey);
+      await waitForSonarQubeCompletion(projectKey);
+      reportPath = await downloadSonarQubeReport(projectKey);
       await deleteSourceCodeOnServer(projectKey);
+      deleteSonarQubeProject(projectKey);
       resolve("Scan SonarQube successfully");
     } catch (error) {
       reject(error);

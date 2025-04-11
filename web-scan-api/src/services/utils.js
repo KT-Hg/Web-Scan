@@ -1,5 +1,3 @@
-import bcrypt from "bcryptjs";
-
 function detectReportTool(reportName) {
   const patterns = [
     { regex: /^DAST_ZAP_Report_/, tool: "ZAP" },
