@@ -1,95 +1,213 @@
-<%/* reportWapiti.ejs */%>
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wapiti Security Report</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <header>
-      <h1>Wapiti Security Report</h1>
-      <p>Target: <%= data.infos.target %></p>
-      <p>Date: <%= data.infos.date %></p>
-      <p>Version: <%= data.infos.version %></p>
-      <p>Scope: <%= data.infos.scope %></p>
-    </header>
 
-    <main>
-      <section>
-        <h2>Classifications</h2>
-        <% for (const [key, value] of Object.entries(data.classifications)) { %>
-        <div class="classification">
-          <h3><%= key %></h3>
-          <p><strong>Description:</strong> <%= value.desc %></p>
-          <p><strong>Solution:</strong> <%= value.sol %></p>
-          <p><strong>References:</strong></p>
-          <ul>
-            <% for (const [refKey, refValue] of Object.entries(value.ref)) { %>
-            <li><a href="<%= refValue %>"><%= refKey %></a></li>
-            <% } %>
-          </ul>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wapiti Comprehensive Report</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin: auto;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      color: #2c3e50;
+    }
+
+    h1 {
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      background: #ecf0f1;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .summary-item {
+      text-align: center;
+    }
+
+    .summary-item h2 {
+      margin: 0;
+      font-size: 2.5em;
+      color: #3498db;
+    }
+
+    .summary-item p {
+      margin: 0;
+      font-size: 1.1em;
+      color: #7f8c8d;
+    }
+
+    .vulnerability {
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    .severity {
+      padding: 6px 12px;
+      border-radius: 5px;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    .CRITICAL {
+      background-color: #e74c3c;
+    }
+
+    .HIGH {
+      background-color: #f39c12;
+    }
+
+    .MEDIUM {
+      background-color: #3498db;
+    }
+
+    .LOW {
+      background-color: #2ecc71;
+    }
+
+    .flow-toggle {
+      cursor: pointer;
+      color: #3498db;
+      text-decoration: underline;
+      font-weight: bold;
+    }
+
+    .flow-content {
+      display: none;
+      padding-top: 10px;
+    }
+
+    .impact {
+      font-weight: bold;
+      background: #ecf0f1;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Wapiti Comprehensive Report</h1>
+
+    <div class="section">
+      <h2>Summary</h2>
+      <div class="summary">
+        <div class="summary-item">
+          <h2>
+            <%= Object.keys(data.vulnerabilities).length %>
+          </h2>
+          <p>Total Vulnerabilities</p>
         </div>
-        <% } %>
-      </section>
+        <div class="summary-item">
+          <h2>
+            <%= data.infos.target %>
+          </h2>
+          <p>Target URL</p>
+        </div>
+      </div>
+    </div>
 
-      <section>
-        <h2>Vulnerabilities Found</h2>
-        <% for (const [key, vulnerabilities] of Object.entries(data.vulnerabilities)) { %>
-        <div class="vulnerability">
-          <h3><%= key %></h3>
-          <% if (vulnerabilities.length === 0) { %>
-          <p>No vulnerabilities found.</p>
-          <% } else { %>
-          <ul>
-            <% vulnerabilities.forEach(vuln => { %>
-            <li>
-              <strong>Method:</strong> <%= vuln.method %><br />
-              <strong>Path:</strong> <%= vuln.path %><br />
-              <strong>Info:</strong> <%= vuln.info %><br />
-              <strong>Level:</strong> <%= vuln.level %><br />
-              <strong>Parameter:</strong> <%= vuln.parameter %><br />
-              <strong>HTTP Request:</strong>
-              <pre><%= vuln.http_request %></pre>
-              <strong>CURL Command:</strong>
-              <pre><%= vuln.curl_command %></pre>
-            </li>
-            <% }); %>
-          </ul>
+    <div class="section">
+      <h2>Vulnerabilities Overview</h2>
+      <% Object.keys(data.vulnerabilities).forEach(vulnType=> { %>
+        <% if (data.vulnerabilities[vulnType].length> 0) { %>
+          <div class="vulnerability">
+            <h3>
+              <%= vulnType %>
+            </h3>
+            <p><strong>Description:</strong>
+              <%= data.classifications[vulnType].desc %>
+            </p>
+            <p><strong>Solution:</strong>
+              <%= data.classifications[vulnType].sol %>
+            </p>
+            <h4>Instances:</h4>
+            <% data.vulnerabilities[vulnType].forEach(instance=> { %>
+              <div class="impact">
+                <p><strong>Method:</strong>
+                  <%= instance.method %>
+                </p>
+                <p><strong>Path:</strong>
+                  <%= instance.path %>
+                </p>
+                <p><strong>Info:</strong>
+                  <%= instance.info %>
+                </p>
+                <p><strong>Level:</strong>
+                  <%= instance.level %>
+                </p>
+                <p><strong>HTTP Request:</strong>
+                  <%= instance.http_request %>
+                </p>
+                <p><strong>cURL Command:</strong> <code><%= instance.curl_command %></code></p>
+              </div>
+              <% }); %>
+          </div>
           <% } %>
-        </div>
-        <% } %>
-      </section>
-
-      <section>
-        <h2>Anomalies</h2>
-        <% for (const [key, anomalies] of Object.entries(data.anomalies)) { %>
-        <div class="anomaly">
-          <h3><%= key %></h3>
-          <ul>
-            <% anomalies.forEach(anomaly => { %>
-            <li>
-              <strong>Method:</strong> <%= anomaly.method %><br />
-              <strong>Path:</strong> <%= anomaly.path %><br />
-              <strong>Info:</strong> <%= anomaly.info %><br />
-              <strong>Level:</strong> <%= anomaly.level %><br />
-              <strong>Parameter:</strong> <%= anomaly.parameter %><br />
-              <strong>HTTP Request:</strong>
-              <pre><%= anomaly.http_request %></pre>
-              <strong>CURL Command:</strong>
-              <pre><%= anomaly.curl_command %></pre>
-            </li>
             <% }); %>
-          </ul>
-        </div>
-        <% } %>
-      </section>
-    </main>
+    </div>
 
-    <footer>
-      <p>Generated by Wapiti</p>
-    </footer>
-  </body>
+    <div class="section">
+      <h2>Additional Information</h2>
+      <p><strong>Target:</strong>
+        <%= data.infos.target %>
+      </p>
+      <p><strong>Date:</strong>
+        <%= data.infos.date %>
+      </p>
+      <p><strong>Version:</strong>
+        <%= data.infos.version %>
+      </p>
+      <p><strong>Scope:</strong>
+        <%= data.infos.scope %>
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>Report generated by Wapiti</p>
+    </div>
+  </div>
+</body>
+
 </html>

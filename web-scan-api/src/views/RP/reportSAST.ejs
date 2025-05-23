@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Consolidated Report: Trivy & SonarQube</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    h1, h2 {
+      font-weight: 600;
+    }
+
+    .section-title {
+      margin-top: 60px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #dee2e6;
+      padding-bottom: 10px;
+      color: #343a40;
+    }
+
+    .table-container {
+      background-color: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 40px;
+    }
+
+    table {
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    thead {
+      background-color: #007bff;
+      color: #ffffff;
+    }
+
+    tbody tr:nth-child(even) {
+      background-color: #f2f6fc;
+    }
+
+    tbody tr:hover {
+      background-color: #e2ecf9;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 12px;
+      border: 1px solid #dee2e6 !important;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    .text-muted small {
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center mb-5">Consolidated Vulnerability Report<br><small class="text-muted">Trivy & SonarQube</small></h1>
+
+    <!-- Common Vulnerabilities -->
+    <h2 class="section-title">Common Vulnerabilities</h2>
+    <div class="mb-3">
+      <label for="sortCommon" class="font-weight-bold">Sắp xếp theo:</label>
+      <select id="sortCommon" class="form-control w-25" onchange="
+        const val = this.value.split(':');
+        sortTableByColumn('commonTable', parseInt(val[0]), val[1], val[2]);
+      ">
+        <option value="">-- Chọn kiểu sắp xếp --</option>
+        <option value="4:string:asc">Severity A → Z</option>
+        <option value="4:string:desc">Severity Z → A</option>
+        <option value="5:date:desc">Published Date: Mới nhất</option>
+        <option value="5:date:asc">Published Date: Cũ nhất</option>
+      </select>
+    </div>
+    <div class="table-container">
+      <div class="table-responsive">
+        <table class="table" id="commonTable">
+          <thead>
+            <tr>
+              <th>Package</th>
+              <th>Vulnerability ID</th>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Severity</th>
+              <th>Published Date</th>
+              <th>Status</th>
+              <th>SonarQube Message</th>
+              <th>SonarQube Severity</th>
+              <th>SonarQube Component</th>
+              <th>SonarQube Line</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% commonErrors.forEach(function(error) { %>
+              <tr>
+                <td><%= error.PkgName %></td>
+                <td><%= error.VulnerabilityID %></td>
+                <td><%= error.Title %></td>
+                <td><%= error.Description %></td>
+                <td><%= error.Severity %></td>
+                <td><%= new Date(error.PublishedDate).toLocaleDateString() %></td>
+                <td><%= error.Status %></td>
+                <td><%= error.SonarQubeMessage %></td>
+                <td><%= error.SonarQubeSeverity %></td>
+                <td><%= error.SonarQubeComponent %></td>
+                <td><%= error.SonarQubeLine %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Trivy-Specific Vulnerabilities -->
+    <h2 class="section-title">Trivy-Specific Vulnerabilities</h2>
+    <div class="mb-3">
+      <label for="sortTrivy" class="font-weight-bold">Sắp xếp theo:</label>
+      <select id="sortTrivy" class="form-control w-25" onchange="
+        const val = this.value.split(':');
+        sortTableByColumn('trivyTable', parseInt(val[0]), val[1], val[2]);
+      ">
+        <option value="">-- Chọn kiểu sắp xếp --</option>
+        <option value="4:string:asc">Severity A → Z</option>
+        <option value="4:string:desc">Severity Z → A</option>
+        <option value="5:date:desc">Published Date: Mới nhất</option>
+        <option value="5:date:asc">Published Date: Cũ nhất</option>
+      </select>
+    </div>
+    <div class="table-container">
+      <div class="table-responsive">
+        <table class="table" id="trivyTable">
+          <thead>
+            <tr>
+              <th>Package</th>
+              <th>Vulnerability ID</th>
+              <th>Title</th>
+              <th>Description</th>
+              <th>Severity</th>
+              <th>Published Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% trivyErrors.forEach(function(error) { %>
+              <tr>
+                <td><%= error.PkgName %></td>
+                <td><%= error.VulnerabilityID %></td>
+                <td><%= error.Title %></td>
+                <td><%= error.Description %></td>
+                <td><%= error.Severity %></td>
+                <td><%= new Date(error.PublishedDate).toLocaleDateString() %></td>
+                <td><%= error.Status %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SonarQube-Specific Vulnerabilities -->
+    <h2 class="section-title">SonarQube-Specific Vulnerabilities</h2>
+    <div class="mb-3">
+      <label for="sortSonar" class="font-weight-bold">Sắp xếp theo:</label>
+      <select id="sortSonar" class="form-control w-25" onchange="
+        const val = this.value.split(':');
+        sortTableByColumn('sonarTable', parseInt(val[0]), val[1], val[2]);
+      ">
+        <option value="">-- Chọn kiểu sắp xếp --</option>
+        <option value="2:string:asc">Severity A → Z</option>
+        <option value="2:string:desc">Severity Z → A</option>
+        <option value="6:date:desc">Creation Date: Mới nhất</option>
+        <option value="6:date:asc">Creation Date: Cũ nhất</option>
+      </select>
+    </div>
+    <div class="table-container">
+      <div class="table-responsive">
+        <table class="table" id="sonarTable">
+          <thead>
+            <tr>
+              <th>Key</th>
+              <th>Rule</th>
+              <th>Severity</th>
+              <th>Component</th>
+              <th>Line</th>
+              <th>Message</th>
+              <th>Creation Date</th>
+              <th>Update Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% sonarQubeErrors.forEach(function(error) { %>
+              <tr>
+                <td><%= error.key %></td>
+                <td><%= error.rule %></td>
+                <td><%= error.severity %></td>
+                <td><%= error.component %></td>
+                <td><%= error.line %></td>
+                <td><%= error.message %></td>
+                <td><%= new Date(error.creationDate).toLocaleDateString() %></td>
+                <td><%= new Date(error.updateDate).toLocaleDateString() %></td>
+                <td><%= error.status %></td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script>
+    function sortTableByColumn(tableId, columnIndex, type = 'string', order = 'asc') {
+      const table = document.getElementById(tableId);
+      const tbody = table.querySelector("tbody");
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+
+      const getCellValue = (row, index) => row.children[index].textContent.trim();
+
+      rows.sort((a, b) => {
+        let valA = getCellValue(a, columnIndex);
+        let valB = getCellValue(b, columnIndex);
+
+        if (type === 'date') {
+          valA = new Date(valA);
+          valB = new Date(valB);
+        } else if (type === 'number') {
+          valA = parseFloat(valA) || 0;
+          valB = parseFloat(valB) || 0;
+        }
+
+        return (order === 'asc' ? valA > valB : valA < valB) ? 1 : -1;
+      });
+
+      tbody.innerHTML = '';
+      rows.forEach(row => tbody.appendChild(row));
+    }
+  </script>
+</body>
+</html>

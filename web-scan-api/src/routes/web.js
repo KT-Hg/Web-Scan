@@ -66,6 +66,7 @@ let initWebRoutes = (app) => {
   router.get("/userHomepage", checkLogin, checkUser, homeController.getUserHomepage);
   router.get("/scan", checkLogin, checkUser, homeController.getScanPage);
   router.get("/viewReport", checkLogin, checkUser, homeController.viewReport);
+  router.get("/deleteReport", checkLogin, checkUser, homeController.deleteReport);
   // router.get("/viewReport1", checkLogin, checkUser, homeController.viewReport1);
   // router.get("/viewReport2", checkLogin, checkUser, homeController.viewReport2);
   // router.get("/viewReport3", checkLogin, checkUser, homeController.viewReport3);
@@ -76,7 +77,7 @@ let initWebRoutes = (app) => {
   router.post("/scanTrivy", checkLogin, checkUser, homeController.scanTrivy);
   //===================================================
   // router.get("/", homeController.getHomePage);
-  // router.get("/homeUser", homeController.getHomeUser);
+  // router.get("/homeUser", checkLogin, checkUser, homeController.getHomeUser);
   // router.get("/addUser", homeController.getAddUser);
   // router.get("/editUser", homeController.getEditUser);
 
@@ -89,7 +90,6 @@ let initWebRoutes = (app) => {
   // router.post("/scanURL", homeController.scanURL);
   // router.post("/scanSourceCode", homeController.scanSourceCode);
   // router.get("/viewReport", homeController.viewReport);
-
   return app.use("/", router);
 };
 

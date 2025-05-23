@@ -104,11 +104,98 @@ let deleteUserData = (userId) => {
   });
 };
 
+let createNewReport = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.Report.create({
+        name: data.name,
+        type: data.type,
+      });
+      resolve("Create new report successfully");
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let getAllReports = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let reports = await db.Report.findAll();
+      resolve(reports);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let getOneReport = (reportId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let report = await db.Report.findOne({
+        where: { id: reportId },
+      });
+      if (report) {
+        resolve(report);
+      } else {
+        resolve({});
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let updateReportData = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let report = await db.Report.findOne({
+        where: { id: data.id },
+      });
+
+      if (report) {
+        report.name = data.name;
+        report.type = data.type;
+        await report.save();
+        resolve("Update report successfully");
+      } else {
+        resolve("The report not found");
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let deleteReportData = (reportId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let report = await db.Report.findOne({
+        where: { id: reportId },
+      });
+
+      if (report) {
+        await report.destroy();
+        resolve("Delete report successfully");
+      } else {
+        resolve("The report not found");
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   createNewUser: createNewUser,
   getAllUsers: getAllUsers,
   getOneUser: getOneUser,
   updateUserData: updateUserData,
   deleteUserData: deleteUserData,
-  
+
+  createNewReport: createNewReport,
+  getAllReports: getAllReports,
+  getOneReport: getOneReport,
+  updateReportData: updateReportData,
+  deleteReportData: deleteReportData,
 };

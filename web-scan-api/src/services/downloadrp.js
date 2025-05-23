@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const sonarPassword = process.env.SONAR_PASSWORD;
+const reportPathOG = process.env.REPORT_PATH;
 
 async function checkSonarQubeStatus(projectKey) {
   const sonarUrl = `http://localhost:9000/api/ce/component?component=${projectKey}`;
@@ -49,14 +50,8 @@ async function waitForSonarQubeCompletion(projectKey, maxRetries = 20, interval 
   throw new Error("SonarQube analysis timed out.");
 }
 
-async function downloadSonarQubeReport(projectKey) {
+async function downloadSonarQubeReport(projectKey, reportPath) {
   return new Promise((resolve, reject) => {
-    const reportDir = path.join(__dirname, "../uploads");
-    if (!fs.existsSync(reportDir)) {
-      fs.mkdirSync(reportDir, { recursive: true }); // Tạo thư mục nếu chưa có
-    }
-    const timestamp = moment().format("HHmmssDDMMYY");
-    const reportPath = path.join(reportDir, `SAST_SonarQube_Report_${timestamp}.json`);
 
     // Lệnh curl để tải báo cáo từ SonarQube
     const curlCommand = `curl -u admin:${sonarPassword} "http://localhost:9000/api/issues/search?componentKeys=${projectKey}&resolved=false" -o "${reportPath}"`;
