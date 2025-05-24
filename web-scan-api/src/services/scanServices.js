@@ -79,6 +79,24 @@ async function isPortAvailable(port, containerId) {
   });
 }
 
+function combineTokenWithGitUrl(token, gitUrl) {
+  // Nếu token rỗng, trả về URL gốc
+  if (!token) return gitUrl;
+
+  // Kiểm tra định dạng URL GitHub
+  const regex = /^https:\/\/github\.com\/(.+?)(\.git)?$/;
+  const match = gitUrl.match(regex);
+
+  if (!match) {
+    throw new Error(
+      "GitHub URL không hợp lệ. Phải có định dạng https://github.com/username/repo.git"
+    );
+  }
+
+  const path = match[1];
+  return `https://${token}@github.com/${path}.git`;
+}
+
 async function createContainerSonarQube(projectKey) {
   return new Promise((resolve, reject) => {
     const command = [
@@ -91,7 +109,7 @@ async function createContainerSonarQube(projectKey) {
       "-v",
       "zap_volume:/zap",
       "-v",
-      "sonarqube_volume:/usr/src/",
+      "sonarqube_volume:/usr/src",
       "sonarsource/sonar-scanner-cli",
       "sonar-scanner",
       `-Dsonar.projectKey=${projectKey}`,
@@ -173,7 +191,7 @@ let scanWapiti = async (target, tool = Wapiti) => {
     try {
       const timestamp = moment().format("HHmmssDDMMYY");
       let fileName = `DAST_Wapiti_Report_${timestamp}`;
-      let data = { name: fileName, type: 1 };
+      let data = { name: fileName, type: "DAST", tool: "Wapiti" };
       crudServices.createNewReport(data);
       const reportPath = `/tmp/DAST_Wapiti_Report_${timestamp}.json`;
       console.log(reportPath);
@@ -204,7 +222,7 @@ let scanZAP = async (target, tool = ZAP) => {
       execCommandInContainer(containerIdZap, command);
       const timestamp = moment().format("HHmmssDDMMYY");
       let fileName = `DAST_ZAP_Report_${timestamp}`;
-      let data = { name: fileName, type: 1 };
+      let data = { name: fileName, type: "DAST", tool: "ZAP" };
       const reportPath = `/tmp/${fileName}.json`;
       const freePort = await getAvailablePort(8080, containerIdZap);
       command = [
@@ -224,7 +242,8 @@ let scanZAP = async (target, tool = ZAP) => {
         console.log("aa");
         fileName = `DAST_Report_${timestamp}`;
         data.name = fileName;
-        data.type = 2;
+        data.type = "DAST";
+        data.tool = "ZAP, Wapiti";
         crudServices.createNewReport(data);
       }
       resolve("Scan ZAP successfully");
@@ -320,21 +339,20 @@ let scanZAP = async (target, tool = ZAP) => {
 //   });
 // };
 
-let scanTrivy = async (target, tool = Trivy) => {
+let scanTrivy = async (target, tool = Trivy, token = "") => {
   const { volumeName, uploadDir } = TrivyServices.getPaths();
   const timestamp = moment().format("HHmmssDDMMYY");
   let fileName = `SAST_Trivy_Report_${timestamp}`;
-  let data = { name: fileName, type: 1 };
-  crudServices.createNewReport(data);
+  let data = { name: fileName, type: "SAST", tool: "Trivy" };
   //const reportPath = path.join(uploadDir, `SAST_Trivy_Report_${timestamp}.json`);
   const reportPath = path.join(uploadDir, `${fileName}.json`);
   //const reportPath = path.join(uploadDir, `trivy-security-report-${Date.now()}.json`);
-
+  target = combineTokenWithGitUrl(token, target);
   try {
     await TrivyServices.checkOrCreateVolume(volumeName);
     await TrivyServices.cloneRepoIntoVolume(target, volumeName);
     await TrivyServices.runTrivyScan(volumeName, uploadDir, reportPath);
-    console.log("Report saved at:", reportPath);
+    crudServices.createNewReport(data);
     return reportPath;
   } catch (error) {
     console.error(error);
@@ -349,6 +367,7 @@ let getSourceCodeGithub = async (target) => {
   return new Promise((resolve, reject) => {
     try {
       console.log("Target:", target);
+      //let command = ["sh", "-c", `cd sonarqube && git clone ${target}`];
       let command = ["sh", "-c", `cd sonarqube && git clone ${target}`];
       execCommandInContainer(containerIdServer, command);
       console.log("Get Source Code Github successfully");
@@ -438,16 +457,17 @@ async function deleteSonarQubeProject(projectKey) {
   });
 }
 
-let scanSonarQube = async (target, tool = SonarQube) => {
+let scanSonarQube = async (target, tool = SonarQube, token = "") => {
   console.log("Target:", target);
   return new Promise(async (resolve, reject) => {
     try {
+      console.log("Target:", target);
       const timestamp = moment().format("HHmmssDDMMYY");
       let fileName = `SAST_SonarQube_Report_${timestamp}`;
-      let data = { name: fileName, type: 1 };
+      let data = { name: fileName, type: "SAST", tool: "SonarQube" };
       const reportPath = path.join(reportPathOG, `${fileName}.json`);
       const projectKey = target.split("/").pop().replace(".git", "");
-      console.log("Project Key:", projectKey);
+      target = combineTokenWithGitUrl(token, target);
       await getSourceCodeGithub(target);
       await deleteSonarQubeProject(projectKey);
       await createSonarQubeProject(projectKey);
@@ -460,7 +480,8 @@ let scanSonarQube = async (target, tool = SonarQube) => {
       if (tool === "bothSAST") {
         fileName = `SAST_Report_${timestamp}`;
         data.name = fileName;
-        data.type = 2;
+        data.type = "SAST";
+        data.tool = "SonarQube, Trivy";
         crudServices.createNewReport(data);
       }
       resolve("Scan SonarQube successfully");

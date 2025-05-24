@@ -39,7 +39,7 @@
     </div>
 
     <!-- View Reports -->
-    <div class="row g-3 mt-3">
+    <!-- <div class="row g-3 mt-3">
       <table class="table mt-5">
         <thead>
           <tr>
@@ -69,9 +69,75 @@
             <% } %>
         </tbody>
       </table>
-    </div>
+    </div> -->
 
+    <h2 class="mt-5">SAST Reports</h2>
+    <table class="table mt-3">
+      <thead>
+        <tr>
+          <th style="width: 5%;">#</th>
+          <th style="width: 50%;">Name</th>
+          <th style="width: 25%;">Tool</th>
+          <th style="width: 10%;"></th>
+          <th style="width: 10%;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% let countSAST=1; %>
+          <% for (let index=0; index < data.length; index++) { %>
+            <% if (data[index].type==='SAST' ) { %>
+              <tr>
+                <th scope="row">
+                  <%= countSAST++ %>
+                </th>
+                <td>
+                  <%= data[index].name %>
+                </td>
+                <td>
+                  <%= data[index].tool %>
+                </td>
+                <td><a href="/viewReport?reportName=<%= data[index].name %>" class="btn btn-primary">View Report</a>
+                </td>
+                <td><a href="/deleteReport?id=<%= data[index].id %>" class="btn btn-danger">Delete</a></td>
+              </tr>
+              <% } %>
+                <% } %>
+      </tbody>
+    </table>
 
+    <h2 class="mt-5">DAST Reports</h2>
+    <table class="table mt-3">
+      <thead>
+        <tr>
+          <th style="width: 5%;">#</th>
+          <th style="width: 50%;">Name</th>
+          <th style="width: 25%;">Tool</th>
+          <th style="width: 10%;"></th>
+          <th style="width: 10%;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% let countDAST=1; %>
+          <% for (let index=0; index < data.length; index++) { %>
+            <% if (data[index].type==='DAST' ) { %>
+              <tr>
+                <th scope="row">
+                  <%= countDAST++ %>
+                </th>
+                <td>
+                  <%= data[index].name %>
+                </td>
+                <td>
+                  <%= data[index].tool %>
+                </td>
+                <td><a href="/viewReport?reportName=<%= data[index].name %>" class="btn btn-primary">View Report</a>
+                </td>
+                <td><a href="/deleteReport?id=<%= data[index].id %>" class="btn btn-danger">Delete</a></td>
+              </tr>
+              <% } %>
+                <% } %>
+      </tbody>
+    </table>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

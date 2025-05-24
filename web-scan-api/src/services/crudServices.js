@@ -110,6 +110,7 @@ let createNewReport = (data) => {
       await db.Report.create({
         name: data.name,
         type: data.type,
+        tool: data.tool,
       });
       resolve("Create new report successfully");
     } catch (error) {
@@ -156,6 +157,7 @@ let updateReportData = (data) => {
       if (report) {
         report.name = data.name;
         report.type = data.type;
+        report.tool = data.tool;
         await report.save();
         resolve("Update report successfully");
       } else {

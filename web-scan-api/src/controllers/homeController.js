@@ -145,7 +145,7 @@ const scanWapiti = async (req, res) => {
 
 const scanSonarQube = async (req, res) => {
   try {
-    await scanServices.scanSonarQube(req.body.url, req.body.tool);
+    await scanServices.scanSonarQube(req.body.url, req.body.tool, req.body.token);
     return res.redirect("/userHomepage");
   } catch (error) {
     console.error("Error in scanSourceCode:", error);
@@ -155,7 +155,7 @@ const scanSonarQube = async (req, res) => {
 
 const scanTrivy = async (req, res) => {
   try {
-    await scanServices.scanTrivy(req.body.url, req.body.tool);
+    await scanServices.scanTrivy(req.body.url, req.body.tool, req.body.token);
     return res.redirect("/userHomepage");
   } catch (error) {
     console.error("Error in scanTrivy:", error);

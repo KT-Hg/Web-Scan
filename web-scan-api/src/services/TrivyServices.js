@@ -35,9 +35,9 @@ const checkOrCreateVolume = (volumeName) => {
 
 const cloneRepoIntoVolume = (target, volumeName) => {
   return new Promise((resolve, reject) => {
-    if (!target.startsWith("https://github.com/")) {
-      return reject("Invalid GitHub repo URL.");
-    }
+    // if (!target.startsWith("https://github.com/")) {
+    //   return reject("Invalid GitHub repo URL.");
+    // }
 
     const command = [
       "docker",
