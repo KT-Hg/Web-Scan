@@ -111,6 +111,7 @@ let createNewReport = (data) => {
         name: data.name,
         type: data.type,
         tool: data.tool,
+        isProcessing: data.isProcessing === "1" ? true : false,
       });
       resolve("Create new report successfully");
     } catch (error) {
@@ -147,6 +148,23 @@ let getOneReport = (reportId) => {
   });
 };
 
+let getReportByName = (name) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let report = await db.Report.findOne({
+        where: { name: name },
+      });
+      if (report) {
+        resolve(report);
+      } else {
+        resolve({});
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 let updateReportData = (data) => {
   return new Promise(async (resolve, reject) => {
     try {
@@ -158,6 +176,7 @@ let updateReportData = (data) => {
         report.name = data.name;
         report.type = data.type;
         report.tool = data.tool;
+        report.isProcessing = data.isProcessing === "1" ? true : false;
         await report.save();
         resolve("Update report successfully");
       } else {
@@ -198,6 +217,7 @@ module.exports = {
   createNewReport: createNewReport,
   getAllReports: getAllReports,
   getOneReport: getOneReport,
+  getReportByName: getReportByName,
   updateReportData: updateReportData,
   deleteReportData: deleteReportData,
 };
