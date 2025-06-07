@@ -2,13 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Consolidated Report: Wapiti & ZAP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wapiti & ZAP Vulnerability Report</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css"/>
   <style>
     body {
-      background-color: #f8f9fa;
+      background-color: #f4f4f4;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
     }
 
     h1, h2 {
@@ -16,187 +20,244 @@
     }
 
     .section-title {
+      font-size: 1.5rem;
       margin-top: 60px;
       margin-bottom: 20px;
-      border-bottom: 2px solid #dee2e6;
+      border-bottom: 3px solid #3498db;
       padding-bottom: 10px;
-      color: #343a40;
+      color: #2c3e50;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .controls {
+      margin-bottom: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .controls label {
+      font-weight: 600;
+      min-width: 90px;
+    }
+
+    .controls select {
+      padding: 6px 12px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      min-width: 160px;
     }
 
     .table-container {
-      background-color: #ffffff;
-      padding: 20px;
+      overflow-x: auto;
       border-radius: 12px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      background: #fff;
+      padding: 20px;
       margin-bottom: 40px;
     }
 
-    thead {
-      background-color: #007bff;
-      color: #ffffff;
-      cursor: pointer;
-    }
-
-    tbody tr:nth-child(even) {
-      background-color: #f2f6fc;
-    }
-
-    tbody tr:hover {
-      background-color: #e2ecf9;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin-top: 10px;
     }
 
     th, td {
       text-align: left;
       padding: 12px;
-      border: 1px solid #dee2e6 !important;
+      border: 1px solid #ddd;
       vertical-align: middle;
-      font-size: 14px;
     }
 
-    .text-muted small {
-      font-size: 14px;
+    thead {
+      background-color: #3498db;
+      color: #fff;
     }
+
+    tbody tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tbody tr:hover {
+      background-color: #ecf0f1;
+    }
+    .curl-cell {
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      white-space: normal;
+      max-width: 400px;  /* hoặc dùng 100% hay 30vw để responsive */
+    }
+    .zap-ref-cell {
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      white-space: normal;
+      max-width: 600px; /* bạn có thể thay bằng % hoặc vw nếu muốn responsive hơn */
+    }
+    .zap-solution-cell {
+      max-width: 600px;       /* Giới hạn chiều rộng */
+      white-space: normal;    /* Cho phép xuống dòng */
+      word-break: break-word; /* Tự động ngắt từ nếu cần */
+      overflow-wrap: anywhere;
+    }
+    .zap-description-cell {
+      max-width: 600px;       /* Giới hạn chiều rộng */
+      white-space: normal;    /* Cho phép xuống dòng */
+      word-break: break-word; /* Tự động ngắt từ nếu cần */
+      overflow-wrap: anywhere;
+    }
+
   </style>
 </head>
 <body>
-  <div class="container mt-5">
-    <h1 class="text-center mb-5">Consolidated Vulnerability Report<br><small class="text-muted">Wapiti & OWASP ZAP</small></h1>
+<div class="container">
+  <h1 class="text-center">Consolidated Vulnerability Report<br><small class="text-muted">Wapiti & OWASP ZAP</small></h1>
 
-    <!-- Common Vulnerabilities -->
-    <h2 class="section-title">Common Vulnerabilities</h2>
-    <div class="table-container">
-      <div class="table-responsive">
-        <table class="table" id="commonTable">
-          <thead>
-            <tr>
-              <th onclick="sortTableByColumn('commonTable', 0)">Category</th>
-              <th onclick="sortTableByColumn('commonTable', 1)">Vulnerability ID</th>
-              <th onclick="sortTableByColumn('commonTable', 2)">ZAP Alert</th>
-              <th onclick="sortTableByColumn('commonTable', 3)">ZAP Risk Code</th>
-              <th onclick="sortTableByColumn('commonTable', 4)">ZAP Confidence</th>
-              <th onclick="sortTableByColumn('commonTable', 5)">ZAP Risk Description</th>
-              <th onclick="sortTableByColumn('commonTable', 6)">ZAP Description</th>
-              <th onclick="sortTableByColumn('commonTable', 7)">Wapiti Severity</th>
-              <th onclick="sortTableByColumn('commonTable', 8)">Wapiti Method</th>
-              <th onclick="sortTableByColumn('commonTable', 9)">Wapiti Path</th>
-              <th onclick="sortTableByColumn('commonTable', 10)">Wapiti Curl Command</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% commonErrors.forEach(function(error) { %>
-              <tr>
-                <td><%= error.Classification %></td>
-                <td><%= error.VulnerabilityID %></td>
-                <td><%= error.ZapAlert %></td>
-                <td><%= error.ZapRiskCode %></td>
-                <td><%= error.ZapConfidence %></td>
-                <td><%= error.ZapRiskDesc %></td>
-                <td><%= error.ZapDescription %></td>
-                <td><%= error.WapitiLevel %></td>
-                <td><%= error.WapitiMethod %></td>
-                <td><%= error.WapitiPath %></td>
-                <td><%= error.WapitiCurlCommand %></td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Wapiti Specific Vulnerabilities -->
-    <h2 class="section-title">Wapiti-Specific Vulnerabilities</h2>
-    <div class="table-container">
-      <div class="table-responsive">
-        <table class="table" id="wapitiTable">
-          <thead>
-            <tr>
-              <th onclick="sortTableByColumn('wapitiTable', 0)">Category</th>
-              <th onclick="sortTableByColumn('wapitiTable', 1)">Vulnerability ID</th>
-              <th onclick="sortTableByColumn('wapitiTable', 2)">Severity</th>
-              <th onclick="sortTableByColumn('wapitiTable', 3)">Method</th>
-              <th onclick="sortTableByColumn('wapitiTable', 4)">Path</th>
-              <th onclick="sortTableByColumn('wapitiTable', 5)">Curl Command</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% wapitiErrors.forEach(function(error) { %>
-              <tr>
-                <td><%= error.Classification %></td>
-                <td><%= error.VulnerabilityID %></td>
-                <td><%= error.Level %></td>
-                <td><%= error.Method %></td>
-                <td><%= error.Path %></td>
-                <td><%= error.CurlCommand %></td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ZAP Specific Vulnerabilities -->
-    <h2 class="section-title">ZAP-Specific Vulnerabilities</h2>
-    <div class="table-container">
-      <div class="table-responsive">
-        <table class="table" id="zapTable">
-          <thead>
-            <tr>
-              <th onclick="sortTableByColumn('zapTable', 0)">Alert</th>
-              <th onclick="sortTableByColumn('zapTable', 1)">Risk Code</th>
-              <th onclick="sortTableByColumn('zapTable', 2)">Confidence</th>
-              <th onclick="sortTableByColumn('zapTable', 3)">Risk Description</th>
-              <th onclick="sortTableByColumn('zapTable', 4)">Description</th>
-              <th onclick="sortTableByColumn('zapTable', 5)">Solution</th>
-              <th onclick="sortTableByColumn('zapTable', 6)">References</th>
-              <th onclick="sortTableByColumn('zapTable', 7)">CWE ID</th>
-              <th onclick="sortTableByColumn('zapTable', 8)">Source ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% zapErrors.forEach(function(error) { %>
-              <tr>
-                <td><%= error.alert %></td>
-                <td><%= error.riskcode %></td>
-                <td><%= error.confidence %></td>
-                <td><%= error.riskdesc %></td>
-                <td><%= error.description %></td>
-                <td><%= error.solution %></td>
-                <td><%= error.references %></td>
-                <td><%= error.cweid %></td>
-                <td><%= error.sourceid %></td>
-              </tr>
-            <% }); %>
-          </tbody>
-        </table>
-      </div>
-    </div>
+  <h2 class="section-title">Wapiti Vulnerabilities</h2>
+  <div class="controls">
+    <label for="wapitiSeverityFilter">Severity Filter:</label>
+    <select id="wapitiSeverityFilter">
+      <option value="">All</option>
+      <option value="1">1 (Low)</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5 (High)</option>
+    </select>
+    <label for="wapitiSortSelect">Sort:</label>
+    <select id="wapitiSortSelect">
+      <option value="">None</option>
+      <option value="asc">Severity ↑</option>
+      <option value="desc">Severity ↓</option>
+    </select>
+  </div>
+  <div class="table-container">
+    <table id="wapitiTable">
+      <thead>
+      <tr>
+        <th>Category</th>
+        <th>Vulnerability ID</th>
+        <th>Severity</th>
+        <th>Method</th>
+        <th>Path</th>
+        <th>cURL</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% wapitiErrors.forEach(function(error) { %>
+        <tr>
+          <td><%= error.Classification %></td>
+          <td><%= error.VulnerabilityID %></td>
+          <td><%= error.Level %></td>
+          <td><%= error.Method %></td>
+          <td><%= error.Path %></td>
+          <td class="curl-cell"><%= error.CurlCommand %></td>
+        </tr>
+      <% }); %>
+      </tbody>
+    </table>
   </div>
 
-  <!-- Scripts -->
-  <script>
-    function sortTableByColumn(tableId, columnIndex) {
-      const table = document.getElementById(tableId);
-      const tbody = table.querySelector("tbody");
-      const rows = Array.from(tbody.querySelectorAll("tr"));
-      const order = table.getAttribute("data-sort-order") || "asc";
-      const newOrder = order === "asc" ? "desc" : "asc";
-      table.setAttribute("data-sort-order", newOrder);
+  <h2 class="section-title">ZAP Vulnerabilities</h2>
+  <div class="controls">
+    <label for="zapSeverityFilter">Severity Filter:</label>
+    <select id="zapSeverityFilter">
+      <option value="">All</option>
+      <option value="informational">Informational</option>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+    <label for="zapSortSelect">Sort:</label>
+    <select id="zapSortSelect">
+      <option value="">None</option>
+      <option value="asc">Severity ↑</option>
+      <option value="desc">Severity ↓</option>
+    </select>
+  </div>
+  <div class="table-container">
+    <table id="zapTable">
+      <thead>
+      <tr>
+        <th>Alert</th>
+        <th>Risk Code</th>
+        <th>Confidence</th>
+        <th>Risk Desc</th>
+        <th>Description</th>
+        <th>Solution</th>
+        <th>References</th>
+        <th>CWE ID</th>
+        <th>Source ID</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% zapErrors.forEach(function(error) { %>
+        <tr>
+          <td><%= error.alert %></td>
+          <td><%= error.riskcode %></td>
+          <td><%= error.confidence %></td>
+          <td><%= error.riskdesc %></td>
+          <td class="zap-description-cell"><%= error.description %></td>
+          <td class="zap-solution-cell"><%= error.solution %></td>
+          <td class="zap-ref-cell"><%= error.references %></td>
+          <td><%= error.cweid %></td>
+          <td><%= error.sourceid %></td>
+        </tr>
+      <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+const wapitiSeverityOrder = { '1': 1, '2': 2, '3': 3, '4': 4, '5': 5 };
+const zapSeverityOrder = { 'informational': 0, 'low': 1, 'medium': 2, 'high': 3 };
 
-      rows.sort((a, b) => {
-        let cellA = a.children[columnIndex].innerText.trim();
-        let cellB = b.children[columnIndex].innerText.trim();
+function filterTable(tableId, selectId, colIndex) {
+  const filterValue = document.getElementById(selectId).value.toLowerCase();
+  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+  rows.forEach(row => {
+    const cellText = row.children[colIndex].textContent.trim().toLowerCase();
+    row.style.display = (!filterValue || cellText === filterValue) ? '' : 'none';
+  });
+}
 
-        let aVal = isNaN(cellA) ? cellA.toLowerCase() : parseFloat(cellA);
-        let bVal = isNaN(cellB) ? cellB.toLowerCase() : parseFloat(cellB);
+function sortTable(tableId, colIndex, severityMap, direction) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+  if (!direction) return;
+  rows.sort((a, b) => {
+    const aVal = severityMap[a.children[colIndex].textContent.trim().toLowerCase()] || 0;
+    const bVal = severityMap[b.children[colIndex].textContent.trim().toLowerCase()] || 0;
+    return direction === 'asc' ? aVal - bVal : bVal - aVal;
+  });
+  tbody.innerHTML = '';
+  rows.forEach(row => tbody.appendChild(row));
+}
 
-        if (aVal < bVal) return newOrder === "asc" ? -1 : 1;
-        if (aVal > bVal) return newOrder === "asc" ? 1 : -1;
-        return 0;
-      });
+document.getElementById('wapitiSeverityFilter').addEventListener('change', () => {
+  filterTable('wapitiTable', 'wapitiSeverityFilter', 2);
+});
+document.getElementById('wapitiSortSelect').addEventListener('change', (e) => {
+  sortTable('wapitiTable', 2, wapitiSeverityOrder, e.target.value);
+});
 
-      tbody.innerHTML = "";
-      rows.forEach(row => tbody.appendChild(row));
-    }
-  </script>
+document.getElementById('zapSeverityFilter').addEventListener('change', () => {
+  filterTable('zapTable', 'zapSeverityFilter', 3);
+});
+document.getElementById('zapSortSelect').addEventListener('change', (e) => {
+  sortTable('zapTable', 3, zapSeverityOrder, e.target.value);
+});
+</script>
 </body>
 </html>
