@@ -132,39 +132,53 @@ async function mergeSASTReports(reportName) {
   const trivyErrors = [];
   const sonarQubeErrors = [];
 
-  trivyData.Results.forEach((result) => {
-    if (result.Vulnerabilities) {
-      result.Vulnerabilities.forEach((vul) => {
-        const match = sonarQubeData.issues.find((issue) => issue.key === vul.VulnerabilityID);
-        if (match) {
-          commonErrors.push({
-            PkgName: vul.PkgName,
-            VulnerabilityID: vul.VulnerabilityID,
-            Title: vul.Title,
-            Description: vul.Description,
-            Severity: vul.Severity,
-            PublishedDate: vul.PublishedDate,
-            FixedVersion: vul.FixedVersion,
-            Status: vul.Status,
-            SonarQubeMessage: match.message,
-            SonarQubeSeverity: match.severity,
-            SonarQubeComponent: match.component,
-            SonarQubeLine: match.line,
-          });
-        } else {
-          trivyErrors.push(vul);
-        }
-      });
-    }
-  });
+  if (trivyData && Array.isArray(trivyData.Results)) {
+    trivyData.Results.forEach((result) => {
+      if (result.Vulnerabilities && Array.isArray(result.Vulnerabilities)) {
+        result.Vulnerabilities.forEach((vul) => {
+          const match = sonarQubeData && Array.isArray(sonarQubeData.issues)
+            ? sonarQubeData.issues.find((issue) => issue.key === vul.VulnerabilityID)
+            : null;
 
-  sonarQubeData.issues.forEach((issue) => {
-    const found = trivyData.Results.some((result) => result.Vulnerabilities?.some((vul) => vul.VulnerabilityID === issue.key));
-    if (!found) sonarQubeErrors.push(issue);
-  });
+          if (match) {
+            commonErrors.push({
+              PkgName: vul.PkgName,
+              VulnerabilityID: vul.VulnerabilityID,
+              Title: vul.Title,
+              Description: vul.Description,
+              Severity: vul.Severity,
+              PublishedDate: vul.PublishedDate,
+              FixedVersion: vul.FixedVersion,
+              Status: vul.Status,
+              SonarQubeMessage: match.message,
+              SonarQubeSeverity: match.severity,
+              SonarQubeComponent: match.component,
+              SonarQubeLine: match.line,
+            });
+          } else {
+            trivyErrors.push(vul);
+          }
+        });
+      }
+    });
+  }
+
+  if (sonarQubeData && Array.isArray(sonarQubeData.issues)) {
+    sonarQubeData.issues.forEach((issue) => {
+      const found = trivyData && Array.isArray(trivyData.Results)
+        ? trivyData.Results.some((result) => 
+            Array.isArray(result.Vulnerabilities) && 
+            result.Vulnerabilities.some((vul) => vul.VulnerabilityID === issue.key)
+          )
+        : false;
+
+      if (!found) sonarQubeErrors.push(issue);
+    });
+  }
 
   return { commonErrors, trivyErrors, sonarQubeErrors };
 }
+
 
 module.exports = {
   detectReportTool: detectReportTool,
