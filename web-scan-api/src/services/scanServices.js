@@ -282,7 +282,7 @@ let scanZAP = async (target, tool = ZAP) => {
   const timestamp = moment().format("HHmmssDDMMYY");
   let fileName = `DAST_ZAP_Report_${timestamp}`;
   let data = { name: fileName, type: "DAST", tool: "ZAP", isProcessing: "1" };
-  crudServices.createNewReport(data);
+  await crudServices.createNewReport(data);
 
   const reportPath = `/tmp/${fileName}.json`;
 

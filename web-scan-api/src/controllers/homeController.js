@@ -3,10 +3,9 @@ import moment from "moment";
 import utils from "../services/utils";
 import crudServices from "../services/crudServices";
 import scanServices from "../services/scanServices";
+import scanRequestServices from "../services/scanRequestServices";
 
 require("dotenv").config();
-
-let containerId = process.env.CONTAINER_ID;
 
 const getLogin = (req, res) => {
   res.render("./loginPage.ejs");
@@ -106,8 +105,16 @@ let deleteUser = async (req, res) => {
 
 let getUserHomepage = async (req, res) => {
   try {
-    let data = await crudServices.getAllReports();
-    return res.render("./User/userHomepage.ejs", { user: req.session.user, data: data });
+    await utils.delay(100);
+    let reports = await crudServices.getAllReports();
+    let requestsHistory = await crudServices.getAllTempScanRequests();
+    let requests = await crudServices.getAllScanRequests();
+    return res.render("./User/userHomepage.ejs", {
+      user: req.session.user,
+      reports: reports,
+      requestsHistory: requestsHistory,
+      requests: requests,
+    });
   } catch (error) {
     console.error("Error in getUserHomepage:", error);
     return res.status(500).send("Internal Server Error");
@@ -125,6 +132,14 @@ let getScanPage = async (req, res) => {
 
 const scanZAP = async (req, res) => {
   try {
+    const modifiedReq = {
+      ...req,
+      body: {
+        ...req.body,
+        tool: "ZAP",
+      },
+    };
+    await scanRequestServices.saveTempScanRequest(req);
     await scanServices.scanZAP(req.body.url, req.body.tool);
     return res.redirect("/userHomepage");
   } catch (error) {
@@ -133,8 +148,28 @@ const scanZAP = async (req, res) => {
   }
 };
 
+const scanZAPOnly = async (req) => {
+  const modifiedReq = {
+    ...req,
+    body: {
+      ...req.body,
+      tool: "ZAP",
+    },
+  };
+  await scanRequestServices.saveTempScanRequest(modifiedReq);
+  await scanServices.scanZAP(req.body.url, req.body.tool);
+};
+
 const scanWapiti = async (req, res) => {
   try {
+    const modifiedReq = {
+      ...req,
+      body: {
+        ...req.body,
+        tool: "Wapiti",
+      },
+    };
+    await scanRequestServices.saveTempScanRequest(modifiedReq);
     await scanServices.scanWapiti(req.body.url, req.body.tool);
     return res.redirect("/userHomepage");
   } catch (error) {
@@ -143,8 +178,47 @@ const scanWapiti = async (req, res) => {
   }
 };
 
+const scanWapitiOnly = async (req) => {
+  const modifiedReq = {
+    ...req,
+    body: {
+      ...req.body,
+      tool: "Wapiti",
+    },
+  };
+  await scanRequestServices.saveTempScanRequest(modifiedReq);
+  await scanServices.scanWapiti(req.body.url, req.body.tool);
+};
+
+const scanDAST = async (req, res) => {
+  try {
+    const modifiedReq = {
+      ...req,
+      body: {
+        ...req.body,
+        tool: "bothDAST",
+      },
+    };
+    scanZAPOnly(req);
+    scanWapitiOnly(req);
+    await scanRequestServices.saveTempScanRequest(modifiedReq);
+    return res.redirect("/userHomepage");
+  } catch (error) {
+    console.error("Error in scanDAST:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
 const scanSonarQube = async (req, res) => {
   try {
+    const modifiedReq = {
+      ...req,
+      body: {
+        ...req.body,
+        tool: "SonarQube",
+      },
+    };
+    await scanRequestServices.saveTempScanRequest(modifiedReq);
     await scanServices.scanSonarQube(req.body.url, req.body.tool, req.body.token);
     return res.redirect("/userHomepage");
   } catch (error) {
@@ -153,12 +227,82 @@ const scanSonarQube = async (req, res) => {
   }
 };
 
+const scanSonarQubeOnly = async (req) => {
+  const modifiedReq = {
+    ...req,
+    body: {
+      ...req.body,
+      tool: "SonarQube",
+    },
+  };
+  await scanRequestServices.saveTempScanRequest(modifiedReq);
+  await scanServices.scanSonarQube(req.body.url, req.body.tool, req.body.token);
+};
+
 const scanTrivy = async (req, res) => {
   try {
+    const modifiedReq = {
+      ...req,
+      body: {
+        ...req.body,
+        tool: "Trivy",
+      },
+    };
+    await scanRequestServices.saveTempScanRequest(modifiedReq);
     await scanServices.scanTrivy(req.body.url, req.body.tool, req.body.token);
     return res.redirect("/userHomepage");
   } catch (error) {
     console.error("Error in scanTrivy:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+const scanTrivyOnly = async (req) => {
+  const modifiedReq = {
+    ...req,
+    body: {
+      ...req.body,
+      tool: "Trivy",
+    },
+  };
+  await scanRequestServices.saveTempScanRequest(modifiedReq);
+  await scanServices.scanTrivy(req.body.url, req.body.tool, req.body.token);
+};
+
+const scanSAST = async (req, res) => {
+  try {
+    const modifiedReq = {
+      ...req,
+      body: {
+        ...req.body,
+        tool: "bothSAST",
+      },
+    };
+    scanSonarQubeOnly(req);
+    scanTrivyOnly(req);
+    await scanRequestServices.saveTempScanRequest(modifiedReq);
+    return res.redirect("/userHomepage");
+  } catch (error) {
+    console.error("Error in scanSAST:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+const getSaveRequestPage = async (req, res) => {
+  try {
+    return res.render("./saveRepuestPage.ejs");
+  } catch (error) {
+    console.error("Error in getSaveRequest:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+const saveRequest = async (req, res) => {
+  try {
+    await scanRequestServices.saveScanRequest(req);
+    return res.redirect("/userHomepage");
+  } catch (error) {
+    console.error("Error in saveRequest:", error);
     return res.status(500).send("Internal Server Error");
   }
 };
@@ -502,6 +646,26 @@ const deleteReport = async (req, res) => {
   }
 };
 
+const deleteRequest = async (req, res) => {
+  try {
+    await crudServices.deleteScanRequestData(req.query.id);
+    return res.redirect("/userHomepage");
+  } catch (error) {
+    console.error("Error in deleteRequest:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+const deleteRequestHistory = async (req, res) => {
+  try {
+    await crudServices.deleteTempScanRequestData(req.query.id);
+    return res.redirect("/userHomepage");
+  } catch (error) {
+    console.error("Error in deleteRequestHistory:", error);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
 module.exports = {
   getLogin: getLogin,
   postLogin: postLogin,
@@ -516,10 +680,16 @@ module.exports = {
 
   getUserHomepage: getUserHomepage,
   getScanPage: getScanPage,
+  getSaveRequestPage: getSaveRequestPage,
+  saveRequest: saveRequest,
+  deleteRequest: deleteRequest,
+  deleteRequestHistory: deleteRequestHistory,
   scanZAP: scanZAP,
   scanWapiti: scanWapiti,
+  scanDAST: scanDAST,
   scanSonarQube: scanSonarQube,
   scanTrivy: scanTrivy,
+  scanSAST: scanSAST,
 
   viewReport: viewReport,
   deleteReport: deleteReport,

@@ -70,7 +70,9 @@ async function mergeDASTReports(reportName) {
 
   for (const [classification, vulnerabilities] of Object.entries(wapitiData.vulnerabilities)) {
     vulnerabilities.forEach((vul) => {
-      const zapAlert = ZAPData.site.flatMap((site) => site.alerts).find((alert) => alert.alertRef === vul.info);
+      const zapAlert = ZAPData.site
+        .flatMap((site) => site.alerts)
+        .find((alert) => alert.alertRef === vul.info);
 
       if (zapAlert) {
         commonErrors.push({
@@ -136,9 +138,10 @@ async function mergeSASTReports(reportName) {
     trivyData.Results.forEach((result) => {
       if (result.Vulnerabilities && Array.isArray(result.Vulnerabilities)) {
         result.Vulnerabilities.forEach((vul) => {
-          const match = sonarQubeData && Array.isArray(sonarQubeData.issues)
-            ? sonarQubeData.issues.find((issue) => issue.key === vul.VulnerabilityID)
-            : null;
+          const match =
+            sonarQubeData && Array.isArray(sonarQubeData.issues)
+              ? sonarQubeData.issues.find((issue) => issue.key === vul.VulnerabilityID)
+              : null;
 
           if (match) {
             commonErrors.push({
@@ -165,12 +168,14 @@ async function mergeSASTReports(reportName) {
 
   if (sonarQubeData && Array.isArray(sonarQubeData.issues)) {
     sonarQubeData.issues.forEach((issue) => {
-      const found = trivyData && Array.isArray(trivyData.Results)
-        ? trivyData.Results.some((result) => 
-            Array.isArray(result.Vulnerabilities) && 
-            result.Vulnerabilities.some((vul) => vul.VulnerabilityID === issue.key)
-          )
-        : false;
+      const found =
+        trivyData && Array.isArray(trivyData.Results)
+          ? trivyData.Results.some(
+              (result) =>
+                Array.isArray(result.Vulnerabilities) &&
+                result.Vulnerabilities.some((vul) => vul.VulnerabilityID === issue.key)
+            )
+          : false;
 
       if (!found) sonarQubeErrors.push(issue);
     });
@@ -179,6 +184,7 @@ async function mergeSASTReports(reportName) {
   return { commonErrors, trivyErrors, sonarQubeErrors };
 }
 
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 module.exports = {
   detectReportTool: detectReportTool,
@@ -187,4 +193,5 @@ module.exports = {
   getReport: getReport,
   mergeDASTReports: mergeDASTReports,
   mergeSASTReports: mergeSASTReports,
+  delay: delay,
 };

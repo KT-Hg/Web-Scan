@@ -23,7 +23,8 @@ const checkAdmin = (req, res, next) => {
 
 // Middleware phân quyền user
 const checkUser = (req, res, next) => {
-  if (req.session.user && req.session.user.role === "user") {
+  //if (req.session.user && req.session.user.role === "user") {
+  if (true) {
     next();
   } else {
     res.status(403).send("Bạn không có quyền truy cập vào trang này!");
@@ -65,31 +66,19 @@ let initWebRoutes = (app) => {
 
   router.get("/userHomepage", checkLogin, checkUser, homeController.getUserHomepage);
   router.get("/scan", checkLogin, checkUser, homeController.getScanPage);
+  router.get("/saveRequest", checkLogin, checkUser, homeController.getSaveRequestPage);
   router.get("/viewReport", checkLogin, checkUser, homeController.viewReport);
   router.get("/deleteReport", checkLogin, checkUser, homeController.deleteReport);
-  // router.get("/viewReport1", checkLogin, checkUser, homeController.viewReport1);
-  // router.get("/viewReport2", checkLogin, checkUser, homeController.viewReport2);
-  // router.get("/viewReport3", checkLogin, checkUser, homeController.viewReport3);
+  router.post("/saveRequest", checkLogin, checkUser, homeController.saveRequest);
+  router.get("/deleteRequest", checkLogin, checkUser, homeController.deleteRequest);
+  router.get("/deleteRequestHistory", checkLogin, checkUser, homeController.deleteRequestHistory);
 
   router.post("/scanZAP", checkLogin, checkUser, homeController.scanZAP);
   router.post("/scanWapiti", checkLogin, checkUser, homeController.scanWapiti);
+  router.post("/scanDAST", checkLogin, checkUser, homeController.scanDAST);
   router.post("/scanSonarQube", checkLogin, checkUser, homeController.scanSonarQube);
   router.post("/scanTrivy", checkLogin, checkUser, homeController.scanTrivy);
-  //===================================================
-  // router.get("/", homeController.getHomePage);
-  // router.get("/homeUser", checkLogin, checkUser, homeController.getHomeUser);
-  // router.get("/addUser", homeController.getAddUser);
-  // router.get("/editUser", homeController.getEditUser);
-
-  // router.post("/addUser", homeController.addUser);
-  // router.post("/editUser", homeController.editUser);
-  // router.get("/deleteUser", homeController.deleteUser);
-
-  // router.get("/scan", homeController.getScanPage);
-
-  // router.post("/scanURL", homeController.scanURL);
-  // router.post("/scanSourceCode", homeController.scanSourceCode);
-  // router.get("/viewReport", homeController.viewReport);
+  router.post("/scanSAST", checkLogin, checkUser, homeController.scanSAST);
   return app.use("/", router);
 };
 

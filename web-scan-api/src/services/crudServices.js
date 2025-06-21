@@ -207,6 +207,218 @@ let deleteReportData = (reportId) => {
   });
 };
 
+let createNewScanRequest = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.ScanRequest.create({
+        scanType: data.scanType,
+        tool: data.tool,
+        accessLevel: data.accessLevel,
+        token: data.token,
+        url: data.url,
+      });
+      resolve("Create new scan request successfully");
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let getAllScanRequests = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let requests = await db.ScanRequest.findAll();
+      resolve(requests);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let getOneScanRequest = (requestId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let request = await db.ScanRequest.findOne({
+        where: { id: requestId },
+      });
+      if (request) {
+        resolve(request);
+      } else {
+        resolve({});
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let getScanRequestByUrl = (url) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let request = await db.ScanRequest.findOne({
+        where: { url: url },
+      });
+      if (request) {
+        resolve(request);
+      } else {
+        resolve({});
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let updateScanRequestData = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let request = await db.ScanRequest.findOne({
+        where: { id: data.id },
+      });
+
+      if (request) {
+        request.scanType = data.scanType;
+        request.tool = data.tool;
+        request.accessLevel = data.accessLevel;
+        request.token = data.token;
+        request.url = data.url;
+
+        await request.save();
+        resolve("Update scan request successfully");
+      } else {
+        resolve("The scan request not found");
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let deleteScanRequestData = (requestId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let request = await db.ScanRequest.findOne({
+        where: { id: requestId },
+      });
+
+      if (request) {
+        await request.destroy();
+        resolve("Delete scan request successfully");
+      } else {
+        resolve("The scan request not found");
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let createNewTempScanRequest = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      await db.TempScanRequest.create({
+        scanType: data.scanType,
+        tool: data.tool,
+        accessLevel: data.accessLevel,
+        token: data.token,
+        url: data.url,
+      });
+      resolve("Create new temp scan request successfully");
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let getAllTempScanRequests = () => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let requests = await db.TempScanRequest.findAll();
+      resolve(requests);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let getOneTempScanRequest = (requestId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let request = await db.TempScanRequest.findOne({
+        where: { id: requestId },
+      });
+      if (request) {
+        resolve(request);
+      } else {
+        resolve({});
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let getTempScanRequestByUrl = (url) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let request = await db.TempScanRequest.findOne({
+        where: { url: url },
+      });
+      if (request) {
+        resolve(request);
+      } else {
+        resolve({});
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let updateTempScanRequestData = (data) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let request = await db.TempScanRequest.findOne({
+        where: { id: data.id },
+      });
+
+      if (request) {
+        request.scanType = data.scanType;
+        request.tool = data.tool;
+        request.accessLevel = data.accessLevel;
+        request.token = data.token;
+        request.url = data.url;
+
+        await request.save();
+        resolve("Update temp scan request successfully");
+      } else {
+        resolve("The temp scan request not found");
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+let deleteTempScanRequestData = (requestId) => {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let request = await db.TempScanRequest.findOne({
+        where: { id: requestId },
+      });
+
+      if (request) {
+        await request.destroy();
+        resolve("Delete scan request successfully");
+      } else {
+        resolve("The scan request not found");
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
 module.exports = {
   createNewUser: createNewUser,
   getAllUsers: getAllUsers,
@@ -220,4 +432,18 @@ module.exports = {
   getReportByName: getReportByName,
   updateReportData: updateReportData,
   deleteReportData: deleteReportData,
+
+  createNewScanRequest: createNewScanRequest,
+  getAllScanRequests: getAllScanRequests,
+  getOneScanRequest: getOneScanRequest,
+  getScanRequestByUrl: getScanRequestByUrl,
+  updateScanRequestData: updateScanRequestData,
+  deleteScanRequestData: deleteScanRequestData,
+
+  createNewTempScanRequest: createNewTempScanRequest,
+  getAllTempScanRequests: getAllTempScanRequests,
+  getOneTempScanRequest: getOneTempScanRequest,
+  getTempScanRequestByUrl: getTempScanRequestByUrl,
+  updateTempScanRequestData: updateTempScanRequestData,
+  deleteTempScanRequestData: deleteTempScanRequestData,
 };

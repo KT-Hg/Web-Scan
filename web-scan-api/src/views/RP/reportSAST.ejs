@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vulnerability Report</title>
   <style>
     body {
@@ -19,7 +20,8 @@
       padding: 20px;
     }
 
-    h1, h2 {
+    h1,
+    h2 {
       font-weight: 600;
     }
 
@@ -71,7 +73,8 @@
       margin-top: 10px;
     }
 
-    th, td {
+    th,
+    td {
       text-align: left;
       padding: 12px;
       border: 1px solid #ddd;
@@ -91,6 +94,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1 class="text-center">Vulnerability Report</h1>
@@ -131,15 +135,29 @@
         <tbody>
           <% trivyErrors.forEach(function(error) { %>
             <tr>
-              <td><%= error.PkgName %></td>
-              <td><%= error.VulnerabilityID %></td>
-              <td><%= error.Title %></td>
-              <td><%= error.Description %></td>
-              <td><%= error.Severity %></td>
-              <td><%= new Date(error.PublishedDate).toLocaleDateString() %></td>
-              <td><%= error.Status %></td>
+              <td>
+                <%= error.PkgName %>
+              </td>
+              <td>
+                <%= error.VulnerabilityID %>
+              </td>
+              <td>
+                <%= error.Title %>
+              </td>
+              <td>
+                <%= error.Description %>
+              </td>
+              <td>
+                <%= error.Severity %>
+              </td>
+              <td>
+                <%= new Date(error.PublishedDate).toLocaleDateString() %>
+              </td>
+              <td>
+                <%= error.Status %>
+              </td>
             </tr>
-          <% }); %>
+            <% }); %>
         </tbody>
       </table>
     </div>
@@ -160,7 +178,7 @@
         <option value="BLOCKER">BLOCKER</option>
         <option value="CRITICAL">CRITICAL</option>
         <option value="MAJOR">MAJOR</option>
-        <option value="MINOR">MINOR</option> 
+        <option value="MINOR">MINOR</option>
         <option value="INFO">INFO</option>
       </select>
     </div>
@@ -183,17 +201,35 @@
         <tbody>
           <% sonarQubeErrors.forEach(function(error) { %>
             <tr>
-              <td><%= error.key %></td>
-              <td><%= error.rule %></td>
-              <td><%= error.severity %></td>
-              <td><%= error.component %></td>
-              <td><%= error.line %></td>
-              <td><%= error.message %></td>
-              <td><%= new Date(error.creationDate).toLocaleDateString() %></td>
-              <td><%= new Date(error.updateDate).toLocaleDateString() %></td>
-              <td><%= error.status %></td>
+              <td>
+                <%= error.key %>
+              </td>
+              <td>
+                <%= error.rule %>
+              </td>
+              <td>
+                <%= error.severity %>
+              </td>
+              <td>
+                <%= error.component %>
+              </td>
+              <td>
+                <%= error.line %>
+              </td>
+              <td>
+                <%= error.message %>
+              </td>
+              <td>
+                <%= new Date(error.creationDate).toLocaleDateString() %>
+              </td>
+              <td>
+                <%= new Date(error.updateDate).toLocaleDateString() %>
+              </td>
+              <td>
+                <%= error.status %>
+              </td>
             </tr>
-          <% }); %>
+            <% }); %>
         </tbody>
       </table>
     </div>
@@ -248,4 +284,5 @@
     }
   </script>
 </body>
+
 </html>

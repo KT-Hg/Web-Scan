@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Wapiti & ZAP Vulnerability Report</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css" />
   <style>
     body {
       background-color: #f4f4f4;
@@ -15,7 +16,8 @@
       min-height: 100vh;
     }
 
-    h1, h2 {
+    h1,
+    h2 {
       font-weight: 600;
     }
 
@@ -34,7 +36,7 @@
       padding: 20px;
       background: white;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     .controls {
@@ -61,7 +63,7 @@
     .table-container {
       overflow-x: auto;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       background: #fff;
       padding: 20px;
       margin-bottom: 40px;
@@ -74,7 +76,8 @@
       margin-top: 10px;
     }
 
-    th, td {
+    th,
+    td {
       text-align: left;
       padding: 12px;
       border: 1px solid #ddd;
@@ -93,171 +96,215 @@
     tbody tr:hover {
       background-color: #ecf0f1;
     }
+
     .curl-cell {
       word-break: break-word;
       overflow-wrap: anywhere;
       white-space: normal;
-      max-width: 400px;  /* hoặc dùng 100% hay 30vw để responsive */
+      max-width: 400px;
+      /* hoặc dùng 100% hay 30vw để responsive */
     }
+
     .zap-ref-cell {
       word-break: break-word;
       overflow-wrap: anywhere;
       white-space: normal;
-      max-width: 600px; /* bạn có thể thay bằng % hoặc vw nếu muốn responsive hơn */
+      max-width: 600px;
+      /* bạn có thể thay bằng % hoặc vw nếu muốn responsive hơn */
     }
+
     .zap-solution-cell {
-      max-width: 600px;       /* Giới hạn chiều rộng */
-      white-space: normal;    /* Cho phép xuống dòng */
-      word-break: break-word; /* Tự động ngắt từ nếu cần */
-      overflow-wrap: anywhere;
-    }
-    .zap-description-cell {
-      max-width: 600px;       /* Giới hạn chiều rộng */
-      white-space: normal;    /* Cho phép xuống dòng */
-      word-break: break-word; /* Tự động ngắt từ nếu cần */
+      max-width: 600px;
+      /* Giới hạn chiều rộng */
+      white-space: normal;
+      /* Cho phép xuống dòng */
+      word-break: break-word;
+      /* Tự động ngắt từ nếu cần */
       overflow-wrap: anywhere;
     }
 
+    .zap-description-cell {
+      max-width: 600px;
+      /* Giới hạn chiều rộng */
+      white-space: normal;
+      /* Cho phép xuống dòng */
+      word-break: break-word;
+      /* Tự động ngắt từ nếu cần */
+      overflow-wrap: anywhere;
+    }
   </style>
 </head>
+
 <body>
-<div class="container">
-  <h1 class="text-center">Consolidated Vulnerability Report<br><small class="text-muted">Wapiti & OWASP ZAP</small></h1>
+  <div class="container">
+    <h1 class="text-center">Consolidated Vulnerability Report<br><small class="text-muted">Wapiti & OWASP ZAP</small>
+    </h1>
 
-  <h2 class="section-title">Wapiti Vulnerabilities</h2>
-  <div class="controls">
-    <label for="wapitiSeverityFilter">Severity Filter:</label>
-    <select id="wapitiSeverityFilter">
-      <option value="">All</option>
-      <option value="1">1 (Low)</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5 (High)</option>
-    </select>
-    <label for="wapitiSortSelect">Sort:</label>
-    <select id="wapitiSortSelect">
-      <option value="">None</option>
-      <option value="asc">Severity ↑</option>
-      <option value="desc">Severity ↓</option>
-    </select>
+    <h2 class="section-title">Wapiti Vulnerabilities</h2>
+    <div class="controls">
+      <label for="wapitiSeverityFilter">Severity Filter:</label>
+      <select id="wapitiSeverityFilter">
+        <option value="">All</option>
+        <option value="1">1 (Low)</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5 (High)</option>
+      </select>
+      <label for="wapitiSortSelect">Sort:</label>
+      <select id="wapitiSortSelect">
+        <option value="">None</option>
+        <option value="asc">Severity ↑</option>
+        <option value="desc">Severity ↓</option>
+      </select>
+    </div>
+    <div class="table-container">
+      <table id="wapitiTable">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Vulnerability ID</th>
+            <th>Severity</th>
+            <th>Method</th>
+            <th>Path</th>
+            <th>cURL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% wapitiErrors.forEach(function(error) { %>
+            <tr>
+              <td>
+                <%= error.Classification %>
+              </td>
+              <td>
+                <%= error.VulnerabilityID %>
+              </td>
+              <td>
+                <%= error.Level %>
+              </td>
+              <td>
+                <%= error.Method %>
+              </td>
+              <td>
+                <%= error.Path %>
+              </td>
+              <td class="curl-cell">
+                <%= error.CurlCommand %>
+              </td>
+            </tr>
+            <% }); %>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="section-title">ZAP Vulnerabilities</h2>
+    <div class="controls">
+      <label for="zapSeverityFilter">Severity Filter:</label>
+      <select id="zapSeverityFilter">
+        <option value="">All</option>
+        <option value="informational">Informational</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+      <label for="zapSortSelect">Sort:</label>
+      <select id="zapSortSelect">
+        <option value="">None</option>
+        <option value="asc">Severity ↑</option>
+        <option value="desc">Severity ↓</option>
+      </select>
+    </div>
+    <div class="table-container">
+      <table id="zapTable">
+        <thead>
+          <tr>
+            <th>Alert</th>
+            <th>Risk Code</th>
+            <th>Confidence</th>
+            <th>Risk Desc</th>
+            <th>Description</th>
+            <th>Solution</th>
+            <th>References</th>
+            <th>CWE ID</th>
+            <th>Source ID</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% zapErrors.forEach(function(error) { %>
+            <tr>
+              <td>
+                <%= error.alert %>
+              </td>
+              <td>
+                <%= error.riskcode %>
+              </td>
+              <td>
+                <%= error.confidence %>
+              </td>
+              <td>
+                <%= error.riskdesc %>
+              </td>
+              <td class="zap-description-cell">
+                <%= error.description %>
+              </td>
+              <td class="zap-solution-cell">
+                <%= error.solution %>
+              </td>
+              <td class="zap-ref-cell">
+                <%= error.references %>
+              </td>
+              <td>
+                <%= error.cweid %>
+              </td>
+              <td>
+                <%= error.sourceid %>
+              </td>
+            </tr>
+            <% }); %>
+        </tbody>
+      </table>
+    </div>
   </div>
-  <div class="table-container">
-    <table id="wapitiTable">
-      <thead>
-      <tr>
-        <th>Category</th>
-        <th>Vulnerability ID</th>
-        <th>Severity</th>
-        <th>Method</th>
-        <th>Path</th>
-        <th>cURL</th>
-      </tr>
-      </thead>
-      <tbody>
-      <% wapitiErrors.forEach(function(error) { %>
-        <tr>
-          <td><%= error.Classification %></td>
-          <td><%= error.VulnerabilityID %></td>
-          <td><%= error.Level %></td>
-          <td><%= error.Method %></td>
-          <td><%= error.Path %></td>
-          <td class="curl-cell"><%= error.CurlCommand %></td>
-        </tr>
-      <% }); %>
-      </tbody>
-    </table>
-  </div>
+  <script>
+    const wapitiSeverityOrder = { '1': 1, '2': 2, '3': 3, '4': 4, '5': 5 };
+    const zapSeverityOrder = { 'informational': 0, 'low': 1, 'medium': 2, 'high': 3 };
 
-  <h2 class="section-title">ZAP Vulnerabilities</h2>
-  <div class="controls">
-    <label for="zapSeverityFilter">Severity Filter:</label>
-    <select id="zapSeverityFilter">
-      <option value="">All</option>
-      <option value="informational">Informational</option>
-      <option value="low">Low</option>
-      <option value="medium">Medium</option>
-      <option value="high">High</option>
-    </select>
-    <label for="zapSortSelect">Sort:</label>
-    <select id="zapSortSelect">
-      <option value="">None</option>
-      <option value="asc">Severity ↑</option>
-      <option value="desc">Severity ↓</option>
-    </select>
-  </div>
-  <div class="table-container">
-    <table id="zapTable">
-      <thead>
-      <tr>
-        <th>Alert</th>
-        <th>Risk Code</th>
-        <th>Confidence</th>
-        <th>Risk Desc</th>
-        <th>Description</th>
-        <th>Solution</th>
-        <th>References</th>
-        <th>CWE ID</th>
-        <th>Source ID</th>
-      </tr>
-      </thead>
-      <tbody>
-      <% zapErrors.forEach(function(error) { %>
-        <tr>
-          <td><%= error.alert %></td>
-          <td><%= error.riskcode %></td>
-          <td><%= error.confidence %></td>
-          <td><%= error.riskdesc %></td>
-          <td class="zap-description-cell"><%= error.description %></td>
-          <td class="zap-solution-cell"><%= error.solution %></td>
-          <td class="zap-ref-cell"><%= error.references %></td>
-          <td><%= error.cweid %></td>
-          <td><%= error.sourceid %></td>
-        </tr>
-      <% }); %>
-      </tbody>
-    </table>
-  </div>
-</div>
-<script>
-const wapitiSeverityOrder = { '1': 1, '2': 2, '3': 3, '4': 4, '5': 5 };
-const zapSeverityOrder = { 'informational': 0, 'low': 1, 'medium': 2, 'high': 3 };
+    function filterTable(tableId, selectId, colIndex) {
+      const filterValue = document.getElementById(selectId).value.toLowerCase();
+      const rows = document.querySelectorAll(`#${tableId} tbody tr`);
+      rows.forEach(row => {
+        const cellText = row.children[colIndex].textContent.trim().toLowerCase();
+        row.style.display = (!filterValue || cellText === filterValue) ? '' : 'none';
+      });
+    }
 
-function filterTable(tableId, selectId, colIndex) {
-  const filterValue = document.getElementById(selectId).value.toLowerCase();
-  const rows = document.querySelectorAll(`#${tableId} tbody tr`);
-  rows.forEach(row => {
-    const cellText = row.children[colIndex].textContent.trim().toLowerCase();
-    row.style.display = (!filterValue || cellText === filterValue) ? '' : 'none';
-  });
-}
+    function sortTable(tableId, colIndex, severityMap, direction) {
+      const tbody = document.querySelector(`#${tableId} tbody`);
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      if (!direction) return;
+      rows.sort((a, b) => {
+        const aVal = severityMap[a.children[colIndex].textContent.trim().toLowerCase()] || 0;
+        const bVal = severityMap[b.children[colIndex].textContent.trim().toLowerCase()] || 0;
+        return direction === 'asc' ? aVal - bVal : bVal - aVal;
+      });
+      tbody.innerHTML = '';
+      rows.forEach(row => tbody.appendChild(row));
+    }
 
-function sortTable(tableId, colIndex, severityMap, direction) {
-  const tbody = document.querySelector(`#${tableId} tbody`);
-  const rows = Array.from(tbody.querySelectorAll('tr'));
-  if (!direction) return;
-  rows.sort((a, b) => {
-    const aVal = severityMap[a.children[colIndex].textContent.trim().toLowerCase()] || 0;
-    const bVal = severityMap[b.children[colIndex].textContent.trim().toLowerCase()] || 0;
-    return direction === 'asc' ? aVal - bVal : bVal - aVal;
-  });
-  tbody.innerHTML = '';
-  rows.forEach(row => tbody.appendChild(row));
-}
+    document.getElementById('wapitiSeverityFilter').addEventListener('change', () => {
+      filterTable('wapitiTable', 'wapitiSeverityFilter', 2);
+    });
+    document.getElementById('wapitiSortSelect').addEventListener('change', (e) => {
+      sortTable('wapitiTable', 2, wapitiSeverityOrder, e.target.value);
+    });
 
-document.getElementById('wapitiSeverityFilter').addEventListener('change', () => {
-  filterTable('wapitiTable', 'wapitiSeverityFilter', 2);
-});
-document.getElementById('wapitiSortSelect').addEventListener('change', (e) => {
-  sortTable('wapitiTable', 2, wapitiSeverityOrder, e.target.value);
-});
-
-document.getElementById('zapSeverityFilter').addEventListener('change', () => {
-  filterTable('zapTable', 'zapSeverityFilter', 3);
-});
-document.getElementById('zapSortSelect').addEventListener('change', (e) => {
-  sortTable('zapTable', 3, zapSeverityOrder, e.target.value);
-});
-</script>
+    document.getElementById('zapSeverityFilter').addEventListener('change', () => {
+      filterTable('zapTable', 'zapSeverityFilter', 3);
+    });
+    document.getElementById('zapSortSelect').addEventListener('change', (e) => {
+      sortTable('zapTable', 3, zapSeverityOrder, e.target.value);
+    });
+  </script>
 </body>
+
 </html>

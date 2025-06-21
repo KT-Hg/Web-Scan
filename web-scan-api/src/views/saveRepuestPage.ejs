@@ -10,7 +10,7 @@
     integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-  <title>Web Scan</title>
+  <title>Save Request</title>
 </head>
 
 <body>
@@ -81,7 +81,7 @@
         <input type="text" class="form-control" id="inputUrl" name="url" placeholder="Enter URL" />
       </div>
       <div class="col-3 mt-3">
-        <button type="submit" class="btn btn-primary col-8" id="submitBtn">Scan</button>
+        <button type="submit" class="btn btn-success col-8" id="submitBtn">Save</button>
         <a href="/" class="text-muted mx-2 col-4">Back</a>
       </div>
     </form>
@@ -240,28 +240,7 @@
       };
 
       let endpoints = [];
-
-      switch (tool.value) {
-        case "ZAP":
-          endpoints.push("/scanZAP");
-          break;
-        case "Wapiti":
-          endpoints.push("/scanWapiti");
-          break;
-        case "bothDAST":
-          endpoints.push("/scanDAST");
-          break;
-        case "SonarQube":
-          endpoints.push("/scanSonarQube");
-          break;
-        case "Trivy":
-          endpoints.push("/scanTrivy");
-          break;
-        case "bothSAST":
-          endpoints.push("/scanSAST");
-          break;
-      }
-
+      endpoints.push("/saveRequest");
       endpoints.forEach((endpoint) => fetch(endpoint, requestOptions));
       window.location.href = "/userHomepage";
     });

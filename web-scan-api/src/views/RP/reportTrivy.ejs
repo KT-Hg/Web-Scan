@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Trivy Security Report</title>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
 
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,11 +23,13 @@
       background: #fff;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       margin: auto;
     }
 
-    h1, h2, h3 {
+    h1,
+    h2,
+    h3 {
       color: #2c3e50;
     }
 
@@ -86,7 +91,8 @@
       word-wrap: break-word;
     }
 
-    th, td {
+    th,
+    td {
       padding: 12px;
       text-align: left;
       border: 1px solid #ddd;
@@ -95,13 +101,40 @@
       white-space: normal;
     }
 
-    th:nth-child(1), td:nth-child(1) { width: 10%; }
-    th:nth-child(2), td:nth-child(2) { width: 8%; }
-    th:nth-child(3), td:nth-child(3) { width: 12%; }
-    th:nth-child(4), td:nth-child(4) { width: 8%; }
-    th:nth-child(5), td:nth-child(5) { width: 30%; }
-    th:nth-child(6), td:nth-child(6) { width: 10%; }
-    th:nth-child(7), td:nth-child(7) { width: 22%; }
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 10%;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 8%;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+      width: 12%;
+    }
+
+    th:nth-child(4),
+    td:nth-child(4) {
+      width: 8%;
+    }
+
+    th:nth-child(5),
+    td:nth-child(5) {
+      width: 30%;
+    }
+
+    th:nth-child(6),
+    td:nth-child(6) {
+      width: 10%;
+    }
+
+    th:nth-child(7),
+    td:nth-child(7) {
+      width: 22%;
+    }
 
     th {
       background-color: #f4f4f4;
@@ -141,6 +174,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Trivy Security Report</h1>
@@ -148,33 +182,36 @@
     <div class="section">
       <h2>Summary</h2>
 
-      <%
-        let total = 0, fixed = 0, unfixed = 0;
-        if (Array.isArray(data?.Results)) {
-          data.Results.forEach(result => {
-            if (Array.isArray(result?.Vulnerabilities)) {
-              total += result.Vulnerabilities.length;
-              fixed += result.Vulnerabilities.filter(v => v.FixedVersion).length;
-              unfixed += result.Vulnerabilities.filter(v => !v.FixedVersion).length;
-            }
-          });
+      <% let total=0, fixed=0, unfixed=0; if (Array.isArray(data?.Results)) { data.Results.forEach(result=> {
+        if (Array.isArray(result?.Vulnerabilities)) {
+        total += result.Vulnerabilities.length;
+        fixed += result.Vulnerabilities.filter(v => v.FixedVersion).length;
+        unfixed += result.Vulnerabilities.filter(v => !v.FixedVersion).length;
         }
-      %>
+        });
+        }
+        %>
 
-      <div class="summary">
-        <div class="summary-item">
-          <h2><%= total %></h2>
-          <p>Total Vulnerabilities</p>
+        <div class="summary">
+          <div class="summary-item">
+            <h2>
+              <%= total %>
+            </h2>
+            <p>Total Vulnerabilities</p>
+          </div>
+          <div class="summary-item">
+            <h2>
+              <%= fixed %>
+            </h2>
+            <p>Fixed Vulnerabilities</p>
+          </div>
+          <div class="summary-item">
+            <h2>
+              <%= unfixed %>
+            </h2>
+            <p>Unfixed Vulnerabilities</p>
+          </div>
         </div>
-        <div class="summary-item">
-          <h2><%= fixed %></h2>
-          <p>Fixed Vulnerabilities</p>
-        </div>
-        <div class="summary-item">
-          <h2><%= unfixed %></h2>
-          <p>Unfixed Vulnerabilities</p>
-        </div>
-      </div>
     </div>
 
     <div class="section">
@@ -201,10 +238,11 @@
         </select>
       </div>
 
-      <% if (Array.isArray(data?.Results) && data.Results.length > 0) { %>
-        <% data.Results.forEach((result, index) => { %>
-          <% if (Array.isArray(result?.Vulnerabilities) && result.Vulnerabilities.length > 0) { %>
-            <h3>Target: <%= result.Target %></h3>
+      <% if (Array.isArray(data?.Results) && data.Results.length> 0) { %>
+        <% data.Results.forEach((result, index)=> { %>
+          <% if (Array.isArray(result?.Vulnerabilities) && result.Vulnerabilities.length> 0) { %>
+            <h3>Target: <%= result.Target %>
+            </h3>
             <table id="vulnTable-<%= index %>" class="vuln-table">
               <thead>
                 <tr>
@@ -218,34 +256,49 @@
                 </tr>
               </thead>
               <tbody>
-                <% result.Vulnerabilities.forEach(vuln => { %>
+                <% result.Vulnerabilities.forEach(vuln=> { %>
                   <tr data-severity="<%= vuln.Severity.toUpperCase() %>">
-                    <td><%= vuln.PkgName %></td>
-                    <td><%= vuln.InstalledVersion %></td>
-                    <td><a href="<%= vuln.PrimaryURL %>" target="_blank"><%= vuln.VulnerabilityID %></a></td>
-                    <td><%= vuln.Severity %></td>
-                    <td><%= vuln.Description %></td>
-                    <td><%= vuln.FixedVersion || 'N/A' %></td>
+                    <td>
+                      <%= vuln.PkgName %>
+                    </td>
+                    <td>
+                      <%= vuln.InstalledVersion %>
+                    </td>
+                    <td><a href="<%= vuln.PrimaryURL %>" target="_blank">
+                        <%= vuln.VulnerabilityID %>
+                      </a></td>
+                    <td>
+                      <%= vuln.Severity %>
+                    </td>
+                    <td>
+                      <%= vuln.Description %>
+                    </td>
+                    <td>
+                      <%= vuln.FixedVersion || 'N/A' %>
+                    </td>
                     <td class="references">
                       <ul>
-                        <% vuln.References.forEach(ref => { %>
-                          <li><a href="<%= ref %>" target="_blank"><%= ref %></a></li>
-                        <% }) %>
+                        <% vuln.References.forEach(ref=> { %>
+                          <li><a href="<%= ref %>" target="_blank">
+                              <%= ref %>
+                            </a></li>
+                          <% }) %>
                       </ul>
                     </td>
                   </tr>
-                <% }) %>
+                  <% }) %>
               </tbody>
             </table>
-          <% } %>
-        <% }) %>
-      <% } else { %>
-        <p>No vulnerabilities found or invalid data format.</p>
-      <% } %>
+            <% } %>
+              <% }) %>
+                <% } else { %>
+                  <p>No vulnerabilities found or invalid data format.</p>
+                  <% } %>
     </div>
 
     <div class="footer">
-      <p>Generated by Trivy Security Report System | <%= new Date().toLocaleDateString() %></p>
+      <p>Generated by Trivy Security Report System | <%= new Date().toLocaleDateString() %>
+      </p>
     </div>
   </div>
 
@@ -293,4 +346,5 @@
     });
   </script>
 </body>
+
 </html>

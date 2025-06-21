@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wapiti Comprehensive Report</title>
   <style>
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background-color: #f4f4f4;
@@ -13,6 +17,7 @@
       padding: 20px;
       color: #333;
     }
+
     .container {
       max-width: 1200px;
       background: #fff;
@@ -21,9 +26,22 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       margin: auto;
     }
-    h1, h2, h3, h4 { color: #2c3e50; }
-    h1 { border-bottom: 3px solid #3498db; padding-bottom: 10px; }
-    .section { margin-bottom: 40px; }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      color: #2c3e50;
+    }
+
+    h1 {
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
 
     .summary {
       display: flex;
@@ -32,14 +50,17 @@
       padding: 20px;
       border-radius: 8px;
     }
+
     .summary-item {
       text-align: center;
     }
+
     .summary-item h2 {
       margin: 0;
       font-size: 2.5em;
       color: #3498db;
     }
+
     .summary-item p {
       margin: 0;
       font-size: 1.1em;
@@ -71,11 +92,24 @@
       text-align: center;
     }
 
-    .level0 { background-color: #7f8c8d; } /* Quiet */
-    .level1 { background-color: #3498db; } /* Normal */
-    .level2 { background-color: #e67e22; } /* Verbose */
+    .level0 {
+      background-color: #7f8c8d;
+    }
 
-    select, input[type="text"] {
+    /* Quiet */
+    .level1 {
+      background-color: #3498db;
+    }
+
+    /* Normal */
+    .level2 {
+      background-color: #e67e22;
+    }
+
+    /* Verbose */
+
+    select,
+    input[type="text"] {
       padding: 8px;
       margin: 10px 0;
       border-radius: 6px;
@@ -104,6 +138,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>Wapiti Comprehensive Report</h1>
@@ -112,11 +147,15 @@
       <h2>Summary</h2>
       <div class="summary">
         <div class="summary-item">
-          <h2><%= Object.keys(data.vulnerabilities).length %></h2>
+          <h2>
+            <%= Object.keys(data.vulnerabilities).length %>
+          </h2>
           <p>Total Vulnerabilities</p>
         </div>
         <div class="summary-item">
-          <h2 class="target-small"><%= data.infos.target %></h2>
+          <h2 class="target-small">
+            <%= data.infos.target %>
+          </h2>
           <p>Target URL</p>
         </div>
       </div>
@@ -146,39 +185,63 @@
       </div>
 
       <div id="vulnContainer">
-        <% Object.keys(data.vulnerabilities).forEach(vulnType => { %>
-          <% if (data.vulnerabilities[vulnType].length > 0) { %>
+        <% Object.keys(data.vulnerabilities).forEach(vulnType=> { %>
+          <% if (data.vulnerabilities[vulnType].length> 0) { %>
             <div class="vulnerability" data-vuln-type="<%= vulnType %>">
-              <h3><%= vulnType %></h3>
-              <p><strong>Description:</strong> <%= data.classifications[vulnType].desc %></p>
-              <p><strong>Solution:</strong> <%= data.classifications[vulnType].sol %></p>
+              <h3>
+                <%= vulnType %>
+              </h3>
+              <p><strong>Description:</strong>
+                <%= data.classifications[vulnType].desc %>
+              </p>
+              <p><strong>Solution:</strong>
+                <%= data.classifications[vulnType].sol %>
+              </p>
 
-              <% data.vulnerabilities[vulnType].forEach(instance => { 
-                  let levelNum = typeof instance.level === 'number' ? instance.level : 1;
-              %>
+              <% data.vulnerabilities[vulnType].forEach(instance=> {
+                let levelNum = typeof instance.level === 'number' ? instance.level : 1;
+                %>
                 <div class="instance" data-level="<%= levelNum %>">
-                  <p><strong>Level:</strong> 
-                    <span class="severity level<%= levelNum %>"><%= levelNum %></span>
+                  <p><strong>Level:</strong>
+                    <span class="severity level<%= levelNum %>">
+                      <%= levelNum %>
+                    </span>
                   </p>
-                  <p><strong>Method:</strong> <%= instance.method %></p>
-                  <p><strong>Path:</strong> <%= instance.path %></p>
-                  <p><strong>Info:</strong> <%= instance.info %></p>
-                  <p><strong>HTTP Request:</strong><br><pre><%= instance.http_request %></pre></p>
+                  <p><strong>Method:</strong>
+                    <%= instance.method %>
+                  </p>
+                  <p><strong>Path:</strong>
+                    <%= instance.path %>
+                  </p>
+                  <p><strong>Info:</strong>
+                    <%= instance.info %>
+                  </p>
+                  <p><strong>HTTP Request:</strong><br>
+                  <pre><%= instance.http_request %></pre>
+                  </p>
                   <p><strong>cURL:</strong> <code><%= instance.curl_command %></code></p>
                 </div>
-              <% }) %>
+                <% }) %>
             </div>
-          <% } %>
-        <% }) %>
+            <% } %>
+              <% }) %>
       </div>
     </div>
 
     <div class="section">
       <h2>Additional Information</h2>
-      <p><strong>Target:</strong> <%= data.infos.target %></p>
-      <p><strong>Date:</strong> <%= data.infos.date %></p>
-      <p><strong>Version:</strong> <%= data.infos.version %></p>
-      <p><strong>Scope:</strong> <%= data.infos.scope %></p>
+      <p><strong>Target:</strong>
+        <%= data.infos.target %>
+      </p>
+      <p><strong>Date:</strong>
+        <%= data.infos.date %>
+      </p>
+      <p><strong>Version:</strong>
+        <%= data.infos.version %>
+      </p>
+      <p><strong>Scope:</strong>
+        <%= data.infos.scope %>
+      </p>
     </div>
 
     <div class="footer">
@@ -220,4 +283,5 @@
     }
   </script>
 </body>
+
 </html>

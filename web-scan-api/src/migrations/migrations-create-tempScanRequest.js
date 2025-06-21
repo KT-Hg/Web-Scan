@@ -2,38 +2,47 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("Reports", {
+    await queryInterface.createTable("TempScanRequests", {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      name: {
+      scanType: {
         type: Sequelize.STRING,
-      },
-      type: {
-        type: Sequelize.STRING,
+        allowNull: false,
       },
       tool: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
-      isProcessing: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: true,
+      accessLevel: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      token: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      url: {
+        type: Sequelize.TEXT,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE,
+        defaultValue: Sequelize.NOW,
       },
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("Reports");
+    await queryInterface.dropTable("TempScanRequests");
   },
 };
