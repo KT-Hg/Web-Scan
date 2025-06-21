@@ -3,447 +3,174 @@ import bcrypt from "bcryptjs";
 
 const salt = bcrypt.genSaltSync(10);
 
-let hashUserPassword = (password) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let hashPassword = await bcrypt.hashSync(password, salt);
-      resolve(hashPassword);
-    } catch (error) {
-      reject(error);
-    }
+const hashUserPassword = (password) => bcrypt.hash(password, salt);
+
+const findById = (Model, id) => Model.findOne({ where: { id } });
+const findByField = (Model, field, value) => Model.findOne({ where: { [field]: value } });
+const findAll = (Model) => Model.findAll();
+
+const createEntry = (Model, data) => Model.create(data);
+const updateEntry = async (instance, data) => {
+  Object.assign(instance, data);
+  return instance.save();
+};
+const deleteEntry = (instance) => instance.destroy();
+
+const createNewUser = async (data) => {
+  const hashedPassword = await hashUserPassword(data.password);
+  await createEntry(db.User, {
+    email: data.email,
+    password: hashedPassword,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    gender: data.gender === "1",
+    role: data.role,
   });
+  return "Create new user successfully";
 };
 
-let createNewUser = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let hashPasswordFromBcrypt = await hashUserPassword(data.password);
-      await db.User.create({
-        email: data.email,
-        password: hashPasswordFromBcrypt,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        gender: data.gender === "1" ? true : false,
-        role: data.role,
-      });
-      resolve("Create new user successfully");
-    } catch (error) {
-      reject(error);
-    }
+const getAllUsers = () => findAll(db.User);
+
+const getOneUser = async (userId) => (await findById(db.User, userId)) || {};
+
+const updateUserData = async (data) => {
+  const user = await findById(db.User, data.id);
+  if (!user) return "The user not found";
+
+  await updateEntry(user, {
+    email: data.email,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    gender: data.gender === "1",
+    role: data.role === "0" ? "User" : "Admin",
   });
+  return "Update user successfully";
 };
 
-let getAllUsers = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let users = await db.User.findAll();
-      resolve(users);
-    } catch (error) {
-      reject(error);
-    }
-  });
+const deleteUserData = async (userId) => {
+  const user = await findById(db.User, userId);
+  if (!user) return "The user not found";
+
+  await deleteEntry(user);
+  return "Delete user successfully";
 };
 
-let getOneUser = (userId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let user = await db.User.findOne({
-        where: { id: userId },
-      });
-      if (user) {
-        resolve(user);
-      } else {
-        resolve({});
-      }
-    } catch (error) {
-      reject(error);
-    }
+// ---------- Report ----------
+const createNewReport = async (data) => {
+  await createEntry(db.Report, {
+    name: data.name,
+    type: data.type,
+    tool: data.tool,
+    isProcessing: data.isProcessing === "1",
   });
+  return "Create new report successfully";
 };
 
-let updateUserData = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let user = await db.User.findOne({
-        where: { id: data.id },
-      });
+const getAllReports = () => findAll(db.Report);
+const getOneReport = async (id) => (await findById(db.Report, id)) || {};
+const getReportByName = async (name) => (await findByField(db.Report, "name", name)) || {};
 
-      if (user) {
-        user.email = data.email;
-        user.firstName = data.firstName;
-        user.lastName = data.lastName;
-        user.gender = data;
-        user.role = data.role === "0" ? "User" : "Admin";
-        await user.save();
-        resolve("Update user successfully");
-      } else {
-        resolve("The user not found");
-      }
-    } catch (error) {
-      reject(error);
-    }
+const updateReportData = async (data) => {
+  const report = await findById(db.Report, data.id);
+  if (!report) return "The report not found";
+
+  await updateEntry(report, {
+    name: data.name,
+    type: data.type,
+    tool: data.tool,
+    isProcessing: data.isProcessing === "1",
   });
+  return "Update report successfully";
 };
 
-let deleteUserData = (userId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let user = await db.User.findOne({
-        where: { id: userId },
-      });
-      console.log(user);
-      if (user) {
-        await user.destroy();
-        resolve("Delete user successfully");
-      } else {
-        resolve("The user not found");
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
+const deleteReportData = async (id) => {
+  const report = await findById(db.Report, id);
+  if (!report) return "The report not found";
+
+  await deleteEntry(report);
+  return "Delete report successfully";
 };
 
-let createNewReport = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      await db.Report.create({
-        name: data.name,
-        type: data.type,
-        tool: data.tool,
-        isProcessing: data.isProcessing === "1" ? true : false,
-      });
-      resolve("Create new report successfully");
-    } catch (error) {
-      reject(error);
-    }
-  });
+// ---------- ScanRequest ----------
+const createNewScanRequest = async (data) => {
+  await createEntry(db.ScanRequest, data);
+  return "Create new scan request successfully";
 };
 
-let getAllReports = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let reports = await db.Report.findAll();
-      resolve(reports);
-    } catch (error) {
-      reject(error);
-    }
-  });
+const getAllScanRequests = () => findAll(db.ScanRequest);
+const getOneScanRequest = async (id) => (await findById(db.ScanRequest, id)) || {};
+const getScanRequestByUrl = async (url) => (await findByField(db.ScanRequest, "url", url)) || {};
+
+const updateScanRequestData = async (data) => {
+  const request = await findById(db.ScanRequest, data.id);
+  if (!request) return "The scan request not found";
+
+  await updateEntry(request, data);
+  return "Update scan request successfully";
 };
 
-let getOneReport = (reportId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let report = await db.Report.findOne({
-        where: { id: reportId },
-      });
-      if (report) {
-        resolve(report);
-      } else {
-        resolve({});
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
+const deleteScanRequestData = async (id) => {
+  const request = await findById(db.ScanRequest, id);
+  if (!request) return "The scan request not found";
+
+  await deleteEntry(request);
+  return "Delete scan request successfully";
 };
 
-let getReportByName = (name) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let report = await db.Report.findOne({
-        where: { name: name },
-      });
-      if (report) {
-        resolve(report);
-      } else {
-        resolve({});
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
+// ---------- ScanRequestHistory ----------
+const createNewScanRequestHistory = async (data) => {
+  await createEntry(db.ScanRequestHistory, data);
+  return "Create new scan request history successfully";
 };
 
-let updateReportData = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let report = await db.Report.findOne({
-        where: { id: data.id },
-      });
+const getAllScanRequestHistories = () => findAll(db.ScanRequestHistory);
 
-      if (report) {
-        report.name = data.name;
-        report.type = data.type;
-        report.tool = data.tool;
-        report.isProcessing = data.isProcessing === "1" ? true : false;
-        await report.save();
-        resolve("Update report successfully");
-      } else {
-        resolve("The report not found");
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
+const getOneScanRequestHistory = async (id) => (await findById(db.ScanRequestHistory, id)) || {};
+
+const getScanRequestHistoryByUrl = async (url) =>
+  (await findByField(db.ScanRequestHistory, "url", url)) || {};
+
+const updateScanRequestHistoryData = async (data) => {
+  const request = await findById(db.ScanRequestHistory, data.id);
+  if (!request) return "The scan request history not found";
+
+  await updateEntry(request, data);
+  return "Update scan request history successfully";
 };
 
-let deleteReportData = (reportId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let report = await db.Report.findOne({
-        where: { id: reportId },
-      });
+const deleteScanRequestHistoryData = async (id) => {
+  const request = await findById(db.ScanRequestHistory, id);
+  if (!request) return "The scan request history not found";
 
-      if (report) {
-        await report.destroy();
-        resolve("Delete report successfully");
-      } else {
-        resolve("The report not found");
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let createNewScanRequest = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      await db.ScanRequest.create({
-        scanType: data.scanType,
-        tool: data.tool,
-        accessLevel: data.accessLevel,
-        token: data.token,
-        url: data.url,
-      });
-      resolve("Create new scan request successfully");
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let getAllScanRequests = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let requests = await db.ScanRequest.findAll();
-      resolve(requests);
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let getOneScanRequest = (requestId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let request = await db.ScanRequest.findOne({
-        where: { id: requestId },
-      });
-      if (request) {
-        resolve(request);
-      } else {
-        resolve({});
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let getScanRequestByUrl = (url) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let request = await db.ScanRequest.findOne({
-        where: { url: url },
-      });
-      if (request) {
-        resolve(request);
-      } else {
-        resolve({});
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let updateScanRequestData = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let request = await db.ScanRequest.findOne({
-        where: { id: data.id },
-      });
-
-      if (request) {
-        request.scanType = data.scanType;
-        request.tool = data.tool;
-        request.accessLevel = data.accessLevel;
-        request.token = data.token;
-        request.url = data.url;
-
-        await request.save();
-        resolve("Update scan request successfully");
-      } else {
-        resolve("The scan request not found");
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let deleteScanRequestData = (requestId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let request = await db.ScanRequest.findOne({
-        where: { id: requestId },
-      });
-
-      if (request) {
-        await request.destroy();
-        resolve("Delete scan request successfully");
-      } else {
-        resolve("The scan request not found");
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let createNewTempScanRequest = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      await db.TempScanRequest.create({
-        scanType: data.scanType,
-        tool: data.tool,
-        accessLevel: data.accessLevel,
-        token: data.token,
-        url: data.url,
-      });
-      resolve("Create new temp scan request successfully");
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let getAllTempScanRequests = () => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let requests = await db.TempScanRequest.findAll();
-      resolve(requests);
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let getOneTempScanRequest = (requestId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let request = await db.TempScanRequest.findOne({
-        where: { id: requestId },
-      });
-      if (request) {
-        resolve(request);
-      } else {
-        resolve({});
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let getTempScanRequestByUrl = (url) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let request = await db.TempScanRequest.findOne({
-        where: { url: url },
-      });
-      if (request) {
-        resolve(request);
-      } else {
-        resolve({});
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let updateTempScanRequestData = (data) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let request = await db.TempScanRequest.findOne({
-        where: { id: data.id },
-      });
-
-      if (request) {
-        request.scanType = data.scanType;
-        request.tool = data.tool;
-        request.accessLevel = data.accessLevel;
-        request.token = data.token;
-        request.url = data.url;
-
-        await request.save();
-        resolve("Update temp scan request successfully");
-      } else {
-        resolve("The temp scan request not found");
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
-};
-
-let deleteTempScanRequestData = (requestId) => {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let request = await db.TempScanRequest.findOne({
-        where: { id: requestId },
-      });
-
-      if (request) {
-        await request.destroy();
-        resolve("Delete scan request successfully");
-      } else {
-        resolve("The scan request not found");
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
+  await deleteEntry(request);
+  return "Delete scan request history successfully";
 };
 
 module.exports = {
-  createNewUser: createNewUser,
-  getAllUsers: getAllUsers,
-  getOneUser: getOneUser,
-  updateUserData: updateUserData,
-  deleteUserData: deleteUserData,
+  createNewUser,
+  getAllUsers,
+  getOneUser,
+  updateUserData,
+  deleteUserData,
 
-  createNewReport: createNewReport,
-  getAllReports: getAllReports,
-  getOneReport: getOneReport,
-  getReportByName: getReportByName,
-  updateReportData: updateReportData,
-  deleteReportData: deleteReportData,
+  createNewReport,
+  getAllReports,
+  getOneReport,
+  getReportByName,
+  updateReportData,
+  deleteReportData,
 
-  createNewScanRequest: createNewScanRequest,
-  getAllScanRequests: getAllScanRequests,
-  getOneScanRequest: getOneScanRequest,
-  getScanRequestByUrl: getScanRequestByUrl,
-  updateScanRequestData: updateScanRequestData,
-  deleteScanRequestData: deleteScanRequestData,
+  createNewScanRequest,
+  getAllScanRequests,
+  getOneScanRequest,
+  getScanRequestByUrl,
+  updateScanRequestData,
+  deleteScanRequestData,
 
-  createNewTempScanRequest: createNewTempScanRequest,
-  getAllTempScanRequests: getAllTempScanRequests,
-  getOneTempScanRequest: getOneTempScanRequest,
-  getTempScanRequestByUrl: getTempScanRequestByUrl,
-  updateTempScanRequestData: updateTempScanRequestData,
-  deleteTempScanRequestData: deleteTempScanRequestData,
+  createNewScanRequestHistory,
+  getAllScanRequestHistories,
+  getOneScanRequestHistory,
+  getScanRequestHistoryByUrl,
+  updateScanRequestHistoryData,
+  deleteScanRequestHistoryData,
 };

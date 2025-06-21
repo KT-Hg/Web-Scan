@@ -10,50 +10,36 @@ import fs from "fs/promises";
 import TrivyServices from "./TrivyServices.js";
 import crudServices from "./crudServices.js";
 import { readFile } from "fs/promises";
-//import { console } from "inspector";
 import { type } from "os";
 require("dotenv").config();
 
-let containerId = process.env.CONTAINER_ID;
-let containerIdZap = process.env.CONTAINER_ID_ZAP;
-let containerIdServer = process.env.CONTAINER_ID_SERVER;
-let reportPathOG = process.env.REPORT_PATH;
-let sonarToken = process.env.SONAR_TOKEN;
-let sonarPassword = process.env.SONAR_PASSWORD;
+const parseToolName = (tool) => {
+  switch (tool) {
+    case "bothDAST":
+      return "ZAP, Wapiti";
+    case "bothSAST":
+      return "SonarQube, Trivy";
+    default:
+      return tool;
+  }
+};
+
+const buildScanRequestPayload = (req) => ({
+  scanType: req.body.scanType,
+  tool: parseToolName(req.body.tool),
+  url: req.body.url,
+  accessLevel: req.body.accessLevel || null,
+  token: req.body.accessLevel === "private" ? req.body.token : null,
+});
 
 const saveScanRequest = async (req) => {
-  let toolName =
-    req.body.tool === "bothDAST"
-      ? "ZAP, Wapiti"
-      : req.body.tool === "bothSAST"
-      ? "SonarQube, Trivy"
-      : req.body.tool;
-  return await crudServices.createNewScanRequest({
-    scanType: req.body.scanType,
-    tool: toolName,
-    url: req.body.url,
-    accessLevel: req.body.accessLevel || null,
-    token: req.body.accessLevel === "private" ? req.body.token : null,
-  });
+  const payload = buildScanRequestPayload(req);
+  return await crudServices.createNewScanRequest(payload);
 };
 
-const saveTempScanRequest = async (req) => {
-  let toolName =
-    req.body.tool === "bothDAST"
-      ? "ZAP, Wapiti"
-      : req.body.tool === "bothSAST"
-      ? "SonarQube, Trivy"
-      : req.body.tool;
-  return await crudServices.createNewTempScanRequest({
-    scanType: req.body.scanType,
-    tool: toolName,
-    url: req.body.url,
-    accessLevel: req.body.accessLevel || null,
-    token: req.body.accessLevel === "private" ? req.body.token : null,
-  });
+const saveScanRequestHistory = async (req) => {
+  const payload = buildScanRequestPayload(req);
+  return await crudServices.createNewScanRequestHistory(payload);
 };
 
-module.exports = {
-  saveScanRequest: saveScanRequest,
-  saveTempScanRequest: saveTempScanRequest,
-};
+export { saveScanRequest, saveScanRequestHistory };

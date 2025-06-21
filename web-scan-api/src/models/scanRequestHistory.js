@@ -2,7 +2,7 @@
 const { Model } = require("sequelize");
 
 module.exports = (sequelize, DataTypes) => {
-  class TempScanRequest extends Model {
+  class ScanRequestHistory extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
 
-  TempScanRequest.init(
+  ScanRequestHistory.init(
     {
       scanType: {
         type: DataTypes.STRING,
@@ -38,9 +38,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "TempScanRequest",
+      modelName: "ScanRequestHistory",
     }
   );
 
-  return TempScanRequest;
+  return ScanRequestHistory;
 };

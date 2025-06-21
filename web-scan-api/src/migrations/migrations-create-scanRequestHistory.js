@@ -2,7 +2,7 @@
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable("TempScanRequests", {
+    await queryInterface.createTable("ScanRequestHistories", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -43,6 +43,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable("TempScanRequests");
+    await queryInterface.dropTable("ScanRequestHistories");
   },
 };

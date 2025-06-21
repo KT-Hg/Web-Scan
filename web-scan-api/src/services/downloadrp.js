@@ -52,7 +52,6 @@ async function waitForSonarQubeCompletion(projectKey, maxRetries = 20, interval 
 
 async function downloadSonarQubeReport(projectKey, reportPath) {
   return new Promise((resolve, reject) => {
-
     // Lệnh curl để tải báo cáo từ SonarQube
     const curlCommand = `curl -u admin:${sonarPassword} "http://localhost:9000/api/issues/search?componentKeys=${projectKey}&resolved=false" -o "${reportPath}"`;
     console.log(`📡 Running command: ${curlCommand}`);
