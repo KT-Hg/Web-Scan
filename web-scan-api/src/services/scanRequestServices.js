@@ -42,4 +42,7 @@ const saveScanRequestHistory = async (req) => {
   return await crudServices.createNewScanRequestHistory(payload);
 };
 
-export { saveScanRequest, saveScanRequestHistory };
+module.exports = {
+  saveScanRequest,
+  saveScanRequestHistory,
+};

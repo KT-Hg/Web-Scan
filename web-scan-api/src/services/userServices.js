@@ -5,7 +5,7 @@ const salt = bcrypt.genSaltSync(10);
 
 const hashUserPassword = (password) => bcrypt.hash(password, salt);
 
-export const createNewUser = async (data) => {
+const createNewUser = async (data) => {
   const hashedPassword = await hashUserPassword(data.password);
   await db.User.create({
     email: data.email,
@@ -18,14 +18,14 @@ export const createNewUser = async (data) => {
   return "Create new user successfully";
 };
 
-export const getAllUsers = () => db.User.findAll();
+const getAllUsers = () => db.User.findAll();
 
-export const getOneUser = async (userId) => {
+const getOneUser = async (userId) => {
   const user = await db.User.findByPk(userId);
   return user || {};
 };
 
-export const updateUserData = async (data) => {
+const updateUserData = async (data) => {
   const user = await db.User.findByPk(data.id);
   if (!user) return "The user not found";
 
@@ -41,10 +41,18 @@ export const updateUserData = async (data) => {
   return "Update user successfully";
 };
 
-export const deleteUserData = async (userId) => {
+const deleteUserData = async (userId) => {
   const user = await db.User.findByPk(userId);
   if (!user) return "The user not found";
 
   await user.destroy();
   return "Delete user successfully";
+};
+
+module.exports = {
+  createNewUser,
+  getAllUsers,
+  getOneUser,
+  updateUserData,
+  deleteUserData,
 };

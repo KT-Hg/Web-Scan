@@ -111,7 +111,7 @@ const scanWithTool = async (req, res, tool, scanFn) => {
   try {
     const modifiedReq = { ...req, body: { ...req.body, tool } };
     await scanRequestServices.saveScanRequestHistory(modifiedReq);
-    await scanFn(req.body.url, tool, req.body.token);
+    await scanFn(req.body.url, req.body.tool, req.body.token);
     if (res) res.redirect("/userHomepage");
   } catch (error) {
     if (res) handleError(res, error, `scan${tool}`);
@@ -119,18 +119,16 @@ const scanWithTool = async (req, res, tool, scanFn) => {
   }
 };
 
-const scanZAP = (req, res) => scanWithTool(req, res, req.body.tool, scanServices.scanZAP);
-const scanWapiti = (req, res) => scanWithTool(req, res, req.body.tool, scanServices.scanWapiti);
-const scanSonarQube = (req, res) =>
-  scanWithTool(req, res, req.body.tool, scanServices.scanSonarQube);
-const scanTrivy = (req, res) => scanWithTool(req, res, req.body.tool, scanServices.scanTrivy);
+const scanZAP = (req, res) => scanWithTool(req, res, "ZAP", scanServices.scanZAP);
+const scanWapiti = (req, res) => scanWithTool(req, res, "Wapiti", scanServices.scanWapiti);
+const scanSonarQube = (req, res) => scanWithTool(req, res, "SonarQube", scanServices.scanSonarQube);
+const scanTrivy = (req, res) => scanWithTool(req, res, "Trivy", scanServices.scanTrivy);
 
-const scanZAPOnly = async (req) => scanWithTool(req, null, req.body.tool, scanServices.scanZAP);
-const scanWapitiOnly = async (req) =>
-  scanWithTool(req, null, req.body.tool, scanServices.scanWapiti);
+const scanZAPOnly = async (req) => scanWithTool(req, null, "ZAP", scanServices.scanZAP);
+const scanWapitiOnly = async (req) => scanWithTool(req, null, "Wapiti", scanServices.scanWapiti);
 const scanSonarQubeOnly = async (req) =>
-  scanWithTool(req, null, req.body.tool, scanServices.scanSonarQube);
-const scanTrivyOnly = async (req) => scanWithTool(req, null, req.body.tool, scanServices.scanTrivy);
+  scanWithTool(req, null, "SonarQube", scanServices.scanSonarQube);
+const scanTrivyOnly = async (req) => scanWithTool(req, null, "Trivy", scanServices.scanTrivy);
 
 const scanDAST = async (req, res) => {
   try {
