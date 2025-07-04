@@ -72,6 +72,7 @@ let initWebRoutes = (app) => {
   router.post("/saveRequest", checkLogin, checkUser, homeController.saveRequest);
   router.get("/deleteRequest", checkLogin, checkUser, homeController.deleteRequest);
   router.get("/deleteRequestHistory", checkLogin, checkUser, homeController.deleteRequestHistory);
+  router.get("/saveRequestFromHistory", checkLogin, checkUser, homeController.saveRequestFromHistory);
 
   router.post("/scanZAP", checkLogin, checkUser, homeController.scanZAP);
   router.post("/scanWapiti", checkLogin, checkUser, homeController.scanWapiti);

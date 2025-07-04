@@ -220,9 +220,14 @@
                     '<%= requestsHistory[i].url %>')">
                       Run
                     </button>
+                    </button>
                     <a href="/deleteRequestHistory?id=<%= requestsHistory[i].id %>"
                       class="btn btn-danger btn-sm btn-action ms-2">
                       Delete
+                    </a>
+                    <a href="/saveRequestFromHistory?id=<%= requestsHistory[i].id %>"
+                      class="btn btn-success btn-sm btn-action ms-2">
+                      Save
                     </a>
                   </td>
                 </tr>
@@ -238,7 +243,7 @@
         <span class="section-title"><i class="fas fa-shield-alt me-2"></i>SAST Reports</span>
         <button class="btn btn-secondary toggleTableBtn" data-target="sastTableContainer">Collapse Table</button>
       </div>
-      <div id="sastTableContainer" class="custom-scroll" style="display: none;">
+      <div id="sastTableContainer" class="custom-scroll" style="display: block;">
         <table class="table table-hover align-middle" id="sastTable">
           <thead>
             <tr>

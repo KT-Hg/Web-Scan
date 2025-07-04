@@ -119,6 +119,52 @@ const scanWithTool = async (req, res, tool, scanFn) => {
   }
 };
 
+const getSaveRequestPage = (req, res) => res.render("./saveRepuestPage.ejs");
+
+const saveRequest = async (req, res) => {
+  try {
+    await scanRequestServices.saveScanRequest(req);
+    res.redirect("/userHomepage");
+  } catch (error) {
+    handleError(res, error, "saveRequest");
+  }
+};
+
+const saveRequestFromHistory = async (req, res) => {
+  try {
+    const requestHistory = await crudServices.getOneScanRequestHistory(req.query.id);
+    const payload = {
+      scanType: requestHistory.scanType,
+      tool: requestHistory.tool,
+      url: requestHistory.url,
+      accessLevel: requestHistory.accessLevel || null,
+      token: requestHistory.accessLevel === "private" ? requestHistory.token : null,
+    };
+    await scanRequestServices.saveScanRequest({ body: payload });
+    res.redirect("/userHomepage");
+  } catch (error) {
+    handleError(res, error, "saveRequestFromHistory");
+  }
+};
+
+const deleteRequest = async (req, res) => {
+  try {
+    await crudServices.deleteScanRequestData(req.query.id);
+    res.redirect("/userHomepage");
+  } catch (error) {
+    handleError(res, error, "deleteRequest");
+  }
+};
+
+const deleteRequestHistory = async (req, res) => {
+  try {
+    await crudServices.deleteScanRequestHistoryData(req.query.id);
+    res.redirect("/userHomepage");
+  } catch (error) {
+    handleError(res, error, "deleteRequestHistory");
+  }
+};
+
 const scanZAP = (req, res) => scanWithTool(req, res, "ZAP", scanServices.scanZAP);
 const scanWapiti = (req, res) => scanWithTool(req, res, "Wapiti", scanServices.scanWapiti);
 const scanSonarQube = (req, res) => scanWithTool(req, res, "SonarQube", scanServices.scanSonarQube);
@@ -153,17 +199,6 @@ const scanSAST = async (req, res) => {
     res.redirect("/userHomepage");
   } catch (error) {
     handleError(res, error, "scanSAST");
-  }
-};
-
-const getSaveRequestPage = (req, res) => res.render("./saveRepuestPage.ejs");
-
-const saveRequest = async (req, res) => {
-  try {
-    await scanRequestServices.saveScanRequest(req);
-    res.redirect("/userHomepage");
-  } catch (error) {
-    handleError(res, error, "saveRequest");
   }
 };
 
@@ -215,24 +250,6 @@ const deleteReport = async (req, res) => {
   }
 };
 
-const deleteRequest = async (req, res) => {
-  try {
-    await crudServices.deleteScanRequestData(req.query.id);
-    res.redirect("/userHomepage");
-  } catch (error) {
-    handleError(res, error, "deleteRequest");
-  }
-};
-
-const deleteRequestHistory = async (req, res) => {
-  try {
-    await crudServices.deleteScanRequestHistoryData(req.query.id);
-    res.redirect("/userHomepage");
-  } catch (error) {
-    handleError(res, error, "deleteRequestHistory");
-  }
-};
-
 module.exports = {
   getLogin,
   postLogin,
@@ -249,6 +266,7 @@ module.exports = {
   getScanPage,
   getSaveRequestPage,
   saveRequest,
+  saveRequestFromHistory,
   deleteRequest,
   deleteRequestHistory,
 
@@ -259,7 +277,7 @@ module.exports = {
   scanTrivy,
   scanSAST,
 
+  getHomeUser,
   viewReport,
   deleteReport,
-  getHomeUser,
 };
