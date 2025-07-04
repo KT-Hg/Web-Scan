@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
+    crossorigin="anonymous" />
+  <title>User Dashboard</title>
+  <style>
+    body {
+      background: #f8fafc;
+    }
+
+    .dashboard-header {
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      padding: 2rem 2rem 1rem 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .dashboard-section {
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .custom-scroll {
+      max-height: 400px;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+
+    .custom-scroll::-webkit-scrollbar {
+      width: 0px;
+      background: transparent;
+    }
+
+    .table thead th {
+      background: #f1f3f6;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    .toggleTableBtn {
+      min-width: 140px;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .btn-action {
+      min-width: 90px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-4">
+    <!-- Header -->
+    <div class="dashboard-header d-flex flex-wrap justify-content-between align-items-center mb-4">
+      <h1 class="mb-0 fs-2"><i class="fas fa-user-shield me-2 text-primary"></i>User Dashboard</h1>
+      <a href="/logout" class="btn btn-danger">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="dashboard-section mb-4">
+      <div class="row g-4">
+        <div class="col-md-4 col-12">
+          <div class="card h-100 shadow-sm border-0 text-center">
+            <div class="card-body">
+              <i class="fas fa-search fa-2x text-primary mb-3"></i>
+              <h5 class="card-title mb-3">Scan Website</h5>
+              <a href="/scan" class="btn btn-primary w-100">
+                Start Scan
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-12">
+          <div class="card h-100 shadow-sm border-0 text-center">
+            <div class="card-body">
+              <i class="fas fa-eye fa-2x text-info mb-3"></i>
+              <h5 class="card-title mb-3">View Report</h5>
+              <form action="/viewReport" method="GET" class="input-group">
+                <input type="text" class="form-control" id="inputReportName" name="reportName" placeholder="Report Name"
+                  required />
+                <button type="submit" class="btn btn-info">
+                  View
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4 col-12">
+          <div class="card h-100 shadow-sm border-0 text-center">
+            <div class="card-body">
+              <i class="fas fa-save fa-2x text-success mb-3"></i>
+              <h5 class="card-title mb-3">Save Request</h5>
+              <a href="/saveRequest" class="btn btn-success w-100">
+                Save
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scan Requests -->
+    <div class="dashboard-section">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="section-title"><i class="fas fa-list-ul me-2"></i>Scan Requests</span>
+        <button class="btn btn-secondary toggleTableBtn" data-target="requestTableContainer">Collapse Table</button>
+      </div>
+      <div id="requestTableContainer" class="custom-scroll" style="display: block;">
+        <table class="table table-hover align-middle" id="scanTable2">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th style="cursor:pointer" onclick="sortTable(1, 'scanTable2')">Scan Type &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(2, 'scanTable2')">Tool &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(3, 'scanTable2')">Access Level &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(4, 'scanTable2')">URL &#x25B2;&#x25BC;</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% let countScan2=1; %>
+              <% for (let i=0; i < requests.length; i++) { %>
+                <tr>
+                  <th class="row-index">
+                    <%= countScan2++ %>
+                  </th>
+                  <td>
+                    <%= requests[i].scanType %>
+                  </td>
+                  <td>
+                    <%= requests[i].tool %>
+                  </td>
+                  <td>
+                    <%= requests[i].accessLevel || 'N/A' %>
+                  </td>
+                  <td>
+                    <%= requests[i].url %>
+                  </td>
+                  <td>
+                    <button class="btn btn-warning btn-sm btn-action" onclick="runScan(
+                    '<%= requests[i].scanType %>',
+                    '<%= requests[i].tool %>',
+                    '<%= requests[i].accessLevel %>',
+                    '<%= requests[i].token %>',
+                    '<%= requests[i].url %>')">
+                      Run
+                    </button>
+                    <a href="/deleteRequest?id=<%= requests[i].id %>" class="btn btn-danger btn-sm btn-action ms-2">
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+                <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Scan Request History -->
+    <div class="dashboard-section">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="section-title"><i class="fas fa-history me-2"></i>Scan Request History</span>
+        <button class="btn btn-secondary toggleTableBtn" data-target="requestHistoryTableContainer">Collapse
+          Table</button>
+      </div>
+      <div id="requestHistoryTableContainer" class="custom-scroll" style="display: block;">
+        <table class="table table-hover align-middle" id="scanTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th style="cursor:pointer" onclick="sortTable(1, 'scanTable')">Scan Type &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(2, 'scanTable')">Tool &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(3, 'scanTable')">Access Level &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(4, 'scanTable')">URL &#x25B2;&#x25BC;</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% let countScan=1; %>
+              <% for (let i=0; i < requestsHistory.length; i++) { %>
+                <tr>
+                  <th class="row-index">
+                    <%= countScan++ %>
+                  </th>
+                  <td>
+                    <%= requestsHistory[i].scanType %>
+                  </td>
+                  <td>
+                    <%= requestsHistory[i].tool %>
+                  </td>
+                  <td>
+                    <%= requestsHistory[i].accessLevel || 'N/A' %>
+                  </td>
+                  <td>
+                    <%= requestsHistory[i].url %>
+                  </td>
+                  <td>
+                    <button class="btn btn-warning btn-sm btn-action" onclick="runScan(
+                    '<%= requestsHistory[i].scanType %>',
+                    '<%= requestsHistory[i].tool %>',
+                    '<%= requestsHistory[i].accessLevel %>',
+                    '<%= requestsHistory[i].token %>',
+                    '<%= requestsHistory[i].url %>')">
+                      Run
+                    </button>
+                    <a href="/deleteRequestHistory?id=<%= requestsHistory[i].id %>"
+                      class="btn btn-danger btn-sm btn-action ms-2">
+                      Delete
+                    </a>
+                  </td>
+                </tr>
+                <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SAST Reports -->
+    <div class="dashboard-section">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="section-title"><i class="fas fa-shield-alt me-2"></i>SAST Reports</span>
+        <button class="btn btn-secondary toggleTableBtn" data-target="sastTableContainer">Collapse Table</button>
+      </div>
+      <div id="sastTableContainer" class="custom-scroll" style="display: none;">
+        <table class="table table-hover align-middle" id="sastTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th style="cursor:pointer" onclick="sortTable(1, 'sastTable')">Name &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(2, 'sastTable')">Tool &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(3, 'sastTable')">Status &#x25B2;&#x25BC;</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% let countSAST=1; %>
+              <% for (let index=0; index < reports.length; index++) { %>
+                <% if (reports[index].type==='SAST' ) { %>
+                  <tr>
+                    <th class="row-index">
+                      <%= countSAST++ %>
+                    </th>
+                    <td>
+                      <%= reports[index].name %>
+                    </td>
+                    <td>
+                      <%= reports[index].tool %>
+                    </td>
+                    <td>
+                      <% if (reports[index].isProcessing) { %>
+                        <span class="badge bg-warning text-dark">Processing</span>
+                        <% } else { %>
+                          <span class="badge bg-success">Done</span>
+                          <% } %>
+                    </td>
+                    <td>
+                      <a href="/viewReport?reportName=<%= reports[index].name %>"
+                        class="btn btn-primary btn-sm btn-action <%= reports[index].isProcessing ? 'disabled' : '' %>">
+                        View Report
+                      </a>
+                    </td>
+                    <td>
+                      <a href="/deleteReport?id=<%= reports[index].id %>"
+                        class="btn btn-danger btn-sm btn-action <%= reports[index].isProcessing ? 'disabled' : '' %>">
+                        Delete
+                      </a>
+                    </td>
+                  </tr>
+                  <% } %>
+                    <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DAST Reports -->
+    <div class="dashboard-section">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <span class="section-title"><i class="fas fa-bug me-2"></i>DAST Reports</span>
+        <button class="btn btn-secondary toggleTableBtn" data-target="dastTableContainer">Collapse Table</button>
+      </div>
+      <div id="dastTableContainer" class="custom-scroll" style="display: block;">
+        <table class="table table-hover align-middle" id="dastTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th style="cursor:pointer" onclick="sortTable(1, 'dastTable')">Name &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(2, 'dastTable')">Tool &#x25B2;&#x25BC;</th>
+              <th style="cursor:pointer" onclick="sortTable(3, 'dastTable')">Status &#x25B2;&#x25BC;</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% let countDAST=1; %>
+              <% for (let index=0; index < reports.length; index++) { %>
+                <% if (reports[index].type==='DAST' ) { %>
+                  <tr>
+                    <th class="row-index">
+                      <%= countDAST++ %>
+                    </th>
+                    <td>
+                      <%= reports[index].name %>
+                    </td>
+                    <td>
+                      <%= reports[index].tool %>
+                    </td>
+                    <td>
+                      <% if (reports[index].isProcessing) { %>
+                        <span class="badge bg-warning text-dark">Processing</span>
+                        <% } else { %>
+                          <span class="badge bg-success">Done</span>
+                          <% } %>
+                    </td>
+                    <td>
+                      <a href="/viewReport?reportName=<%= reports[index].name %>"
+                        class="btn btn-primary btn-sm btn-action <%= reports[index].isProcessing ? 'disabled' : '' %>">
+                        View Report
+                      </a>
+                    </td>
+                    <td>
+                      <a href="/deleteReport?id=<%= reports[index].id %>"
+                        class="btn btn-danger btn-sm btn-action <%= reports[index].isProcessing ? 'disabled' : '' %>">
+                        Delete
+                      </a>
+                    </td>
+                  </tr>
+                  <% } %>
+                    <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts giữ nguyên -->
+  <script>
+    const toggleButtons = document.querySelectorAll('.toggleTableBtn');
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const targetId = button.getAttribute('data-target');
+        const tableContainer = document.getElementById(targetId);
+        const isVisible = tableContainer.style.display !== 'none' && tableContainer.style.display !== '';
+        if (isVisible) {
+          tableContainer.style.display = 'none';
+          button.textContent = 'Show Table';
+        } else {
+          tableContainer.style.display = 'block';
+          button.textContent = 'Collapse Table';
+        }
+      });
+    });
+
+    function sortTable(columnIndex, tableId) {
+      const table = document.getElementById(tableId);
+      const tbody = table.querySelector("tbody");
+      const rows = Array.from(tbody.querySelectorAll("tr"));
+      if (!table.dataset.sortDirection) {
+        table.dataset.sortDirection = "asc";
+      }
+      const direction = table.dataset.sortDirection === "asc" ? 1 : -1;
+      rows.sort((a, b) => {
+        const cellA = a.children[columnIndex].innerText.trim().toLowerCase();
+        const cellB = b.children[columnIndex].innerText.trim().toLowerCase();
+        if (!isNaN(cellA) && !isNaN(cellB)) {
+          return (parseFloat(cellA) - parseFloat(cellB)) * direction;
+        }
+        return cellA.localeCompare(cellB) * direction;
+      });
+      tbody.innerHTML = "";
+      rows.forEach((row, index) => {
+        row.querySelector(".row-index").innerText = index + 1;
+        tbody.appendChild(row);
+      });
+      table.dataset.sortDirection = table.dataset.sortDirection === "asc" ? "desc" : "asc";
+    }
+  </script>
+  <script>
+    function runScan(scanType, tool, accessLevel, token, url) {
+      const cleanedTool = tool.trim();
+      if (cleanedTool === "SonarQube, Trivy") {
+        tool = "bothSAST";
+      } else if (cleanedTool === "ZAP, Wapiti") {
+        tool = "bothDAST";
+      }
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scanType,
+          tool,
+          url,
+          ...(accessLevel && { accessLevel }),
+          ...(accessLevel === "private" && { token })
+        }),
+      };
+      let endpoints = [];
+      switch (tool) {
+        case "ZAP":
+          endpoints.push("/scanZAP");
+          break;
+        case "Wapiti":
+          endpoints.push("/scanWapiti");
+          break;
+        case "bothDAST":
+          endpoints.push("/scanDAST");
+          break;
+        case "SonarQube":
+          endpoints.push("/scanSonarQube");
+          break;
+        case "Trivy":
+          endpoints.push("/scanTrivy");
+          break;
+        case "bothSAST":
+          endpoints.push("/scanSAST");
+          break;
+      }
+      endpoints.forEach((endpoint) => fetch(endpoint, requestOptions));
+      window.location.href = "/userHomepage";
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

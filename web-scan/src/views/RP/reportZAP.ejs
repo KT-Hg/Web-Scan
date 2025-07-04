@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ZAP Security Report</title>
+  <style>
+    /* Reset và base */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 20px;
+      color: #2c3e50;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: auto;
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 12px;
+      font-weight: 700;
+      font-size: 2.5rem;
+      margin-bottom: 30px;
+      color: #34495e;
+    }
+
+    p {
+      margin: 6px 0;
+      font-size: 1rem;
+      color: #4a4a4a;
+    }
+
+    /* Controls */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 30px;
+      align-items: center;
+    }
+
+    .controls label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #34495e;
+    }
+
+    select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1.5px solid #ccc;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      cursor: pointer;
+      min-width: 170px;
+    }
+
+    select:hover,
+    select:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+
+    /* Site Section */
+    .site {
+      border: 1px solid #e1e4e8;
+      border-radius: 12px;
+      padding: 25px 30px;
+      margin-bottom: 30px;
+      background-color: #fdfdfd;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.03);
+      transition: box-shadow 0.3s ease;
+    }
+
+    .site:hover {
+      box-shadow: 0 10px 25px rgba(52, 152, 219, 0.15);
+    }
+
+    .site h2 {
+      margin-top: 0;
+      color: #2c3e50;
+      font-weight: 700;
+      font-size: 1.75rem;
+      margin-bottom: 15px;
+    }
+
+    .site p {
+      font-size: 0.95rem;
+      color: #596275;
+      margin: 4px 0 10px 0;
+    }
+
+    /* Alerts */
+    .alerts-container {
+      margin-top: 20px;
+    }
+
+    .alert {
+      border: 1px solid #dcdcdc;
+      border-left-width: 6px;
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+      background: #fafafa;
+      transition: background-color 0.25s ease;
+      cursor: default;
+    }
+
+    .alert:hover {
+      background-color: #f0f8ff;
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15);
+    }
+
+    .alert h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #34495e;
+    }
+
+    .alert p {
+      margin: 6px 0;
+      font-size: 0.92rem;
+      color: #545454;
+    }
+
+    /* Border color theo severity */
+    .alert[data-severity="informational"] {
+      border-left-color: #3498db;
+      /* blue */
+    }
+
+    .alert[data-severity="low"] {
+      border-left-color: #2ecc71;
+      /* green */
+    }
+
+    .alert[data-severity="medium"] {
+      border-left-color: #f1c40f;
+      /* yellow */
+    }
+
+    .alert[data-severity="high"] {
+      border-left-color: #e74c3c;
+      /* red */
+    }
+
+    /* Risk text (màu đen theo yêu cầu) */
+    .alert p strong {
+      color: #000;
+    }
+
+    /* Flow Toggle */
+    .flow-toggle {
+      display: inline-block;
+      margin-top: 10px;
+      color: #2980b9;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      text-decoration: underline;
+      transition: color 0.3s ease;
+    }
+
+    .flow-toggle:hover {
+      color: #1c5980;
+    }
+
+    .flow-content {
+      display: none;
+      margin-top: 12px;
+    }
+
+    /* Flow table */
+    .flow-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      color: #3b3b3b;
+    }
+
+    .flow-table th,
+    .flow-table td {
+      border: 1px solid #ddd;
+      padding: 10px 12px;
+      text-align: left;
+    }
+
+    .flow-table th {
+      background-color: #e8f0fe;
+      font-weight: 700;
+      color: #2a2a2a;
+    }
+
+    .flow-table tr:nth-child(even) {
+      background-color: #f7faff;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 0.9rem;
+      color: #999;
+    }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      select {
+        min-width: 100%;
+      }
+
+      .site {
+        padding: 20px 15px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>ZAP Security Report</h1>
+    <p><strong>Program:</strong>
+      <%= data['@programName'] || 'N/A' %>
+    </p>
+    <p><strong>Version:</strong>
+      <%= data['@version'] || 'N/A' %>
+    </p>
+    <p><strong>Generated on:</strong>
+      <%= data['@generated'] || 'N/A' %>
+    </p>
+
+    <div class="controls" role="region" aria-label="Filters and Sorting Controls">
+      <label for="severityFilter">Filter by Severity:</label>
+      <select id="severityFilter" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="informational">Informational</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+      </select>
+
+      <label for="impactFilter" style="margin-left: 20px;">Filter by Impact:</label>
+      <select id="impactFilter" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="low">Low</option>
+        <option value="medium">Medium</option>
+        <option value="high">High</option>
+        <option value="critical">Critical</option>
+      </select>
+
+      <label for="sortOption" style="margin-left: 20px;">Sort by:</label>
+      <select id="sortOption" onchange="applyFilters()">
+        <option value="">None</option>
+        <option value="severity-asc">Severity (Informational → High)</option>
+        <option value="severity-desc">Severity (High → Informational)</option>
+        <option value="impact-asc">Impact (Low → Critical)</option>
+        <option value="impact-desc">Impact (Critical → Low)</option>
+      </select>
+    </div>
+
+    <% if (data.site && data.site.length> 0) { %>
+      <% data.site.forEach(site=> { %>
+        <div class="site" tabindex="0" aria-label="Site details: <%= site['@name'] || 'N/A' %>">
+          <h2>Site: <%= site['@name'] || 'N/A' %>
+          </h2>
+          <p><strong>Host:</strong>
+            <%= site['@host'] || 'N/A' %>
+          </p>
+          <p><strong>Port:</strong>
+            <%= site['@port'] || 'N/A' %>
+          </p>
+          <p><strong>SSL:</strong>
+            <%= site['@ssl']==='true' ? 'Enabled' : 'Disabled' %>
+          </p>
+
+          <% if (site.alerts && site.alerts.length> 0) { %>
+            <div class="alerts-container">
+              <% site.alerts.forEach((alert, index)=> {
+                let severity = 'unknown';
+                let impact = 'unknown';
+
+                if(alert.riskdesc){
+                const risk = alert.riskdesc.toLowerCase();
+                const severityMatch = risk.match(/^([a-z]+)\s*\(/);
+                if (severityMatch) {
+                severity = severityMatch[1];
+                } else {
+                severity = risk.split(' ')[0];
+                }
+
+                const impactMatch = alert.riskdesc.match(/\(([^)]+)\)/);
+                if (impactMatch) {
+                impact = impactMatch[1].toLowerCase();
+                }
+                }
+                %>
+                <div class="alert" data-severity="<%= severity %>" data-impact="<%= impact %>" tabindex="0">
+                  <h3>Alert: <%= alert.alert %>
+                  </h3>
+                  <p><strong>Risk:</strong>
+                    <%= alert.riskdesc || 'N/A' %>
+                  </p>
+                  <p><strong>Description:</strong>
+                    <%= alert.desc || 'N/A' %>
+                  </p>
+                  <p><strong>Solution:</strong>
+                    <%= alert.solution || 'N/A' %>
+                  </p>
+                  <p><strong>More Info:</strong>
+                    <%= alert.reference || 'N/A' %>
+                  </p>
+
+                  <h4>
+                    Instances:
+                    <span class="flow-toggle" role="button" tabindex="0"
+                      onclick="toggleFlow('<%= alert.pluginid %>_<%= index %>')"
+                      onkeypress="if(event.key==='Enter'){toggleFlow('<%= alert.pluginid %>_<%= index %>');}">
+                      Show/Hide Details
+                    </span>
+                  </h4>
+                  <div id="flow-<%= alert.pluginid %>_<%= index %>" class="flow-content" aria-hidden="true">
+                    <table class="flow-table" role="table">
+                      <thead>
+                        <tr>
+                          <th>Method</th>
+                          <th>URI</th>
+                          <th>Parameter</th>
+                          <th>Attack</th>
+                          <th>Evidence</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% alert.instances?.forEach(instance=> { %>
+                          <tr>
+                            <td>
+                              <%= instance.method || 'N/A' %>
+                            </td>
+                            <td>
+                              <%= instance.uri || 'N/A' %>
+                            </td>
+                            <td>
+                              <%= instance.param || 'N/A' %>
+                            </td>
+                            <td>
+                              <%= instance.attack || 'N/A' %>
+                            </td>
+                            <td>
+                              <%= instance.evidence || 'N/A' %>
+                            </td>
+                          </tr>
+                          <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <% }) %>
+            </div>
+            <% } else { %>
+              <p>No alerts found for this site.</p>
+              <% } %>
+        </div>
+        <% }) %>
+          <% } else { %>
+            <p>No site data available.</p>
+            <% } %>
+
+              <div class="footer" role="contentinfo">
+                <p>Generated by ZAP Security Scanner | <%= new Date().toLocaleDateString() %>
+                </p>
+              </div>
+  </div>
+
+  <script>
+    function toggleFlow(id) {
+      const el = document.getElementById(`flow-${id}`);
+      if (!el) return;
+      if (el.style.display === "block") {
+        el.style.display = "none";
+        el.setAttribute("aria-hidden", "true");
+      } else {
+        el.style.display = "block";
+        el.setAttribute("aria-hidden", "false");
+      }
+    }
+
+    function applyFilters() {
+      const severity = document.getElementById('severityFilter').value;
+      const impact = document.getElementById('impactFilter').value;
+      const sortOption = document.getElementById('sortOption').value;
+
+      document.querySelectorAll('.alerts-container').forEach(container => {
+        const alerts = Array.from(container.children);
+        let filteredAlerts = alerts.filter(alert => {
+          const alertSeverity = alert.getAttribute('data-severity');
+          const alertImpact = alert.getAttribute('data-impact');
+          let passSeverity = true;
+          let passImpact = true;
+
+          if (severity) {
+            passSeverity = alertSeverity === severity;
+          }
+          if (impact) {
+            passImpact = alertImpact === impact;
+          }
+          return passSeverity && passImpact;
+        });
+
+        // Sorting
+        if (sortOption) {
+          const severityOrder = ['informational', 'low', 'medium', 'high'];
+          const impactOrder = ['low', 'medium', 'high', 'critical'];
+
+          filteredAlerts.sort((a, b) => {
+            const aSeverity = a.getAttribute('data-severity');
+            const bSeverity = b.getAttribute('data-severity');
+            const aImpact = a.getAttribute('data-impact');
+            const bImpact = b.getAttribute('data-impact');
+
+            switch (sortOption) {
+              case 'severity-asc':
+                return severityOrder.indexOf(aSeverity) - severityOrder.indexOf(bSeverity);
+              case 'severity-desc':
+                return severityOrder.indexOf(bSeverity) - severityOrder.indexOf(aSeverity);
+              case 'impact-asc':
+                return impactOrder.indexOf(aImpact) - impactOrder.indexOf(bImpact);
+              case 'impact-desc':
+                return impactOrder.indexOf(bImpact) - impactOrder.indexOf(aImpact);
+              default:
+                return 0;
+            }
+          });
+        }
+
+        // Clear and re-append filtered alerts
+        container.innerHTML = '';
+        filteredAlerts.forEach(alert => container.appendChild(alert));
+      });
+    }
+  </script>
+</body>
+
+</html>

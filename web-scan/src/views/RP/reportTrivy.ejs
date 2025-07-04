@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trivy Security Report</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin: auto;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: #2c3e50;
+    }
+
+    h1 {
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+    }
+
+    .section {
+      margin-bottom: 40px;
+    }
+
+    .summary {
+      display: flex;
+      justify-content: space-between;
+      background: #ecf0f1;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .summary-item {
+      text-align: center;
+    }
+
+    .summary-item h2 {
+      margin: 0;
+      font-size: 2.5em;
+      color: #3498db;
+    }
+
+    .summary-item p {
+      margin: 0;
+      font-size: 1.1em;
+      color: #7f8c8d;
+    }
+
+    .controls {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    .controls label {
+      font-weight: bold;
+    }
+
+    .controls select {
+      padding: 5px;
+      font-size: 1em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+
+    th,
+    td {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid #ddd;
+      vertical-align: top;
+      word-break: break-word;
+      white-space: normal;
+    }
+
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 10%;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 8%;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+      width: 12%;
+    }
+
+    th:nth-child(4),
+    td:nth-child(4) {
+      width: 8%;
+    }
+
+    th:nth-child(5),
+    td:nth-child(5) {
+      width: 30%;
+    }
+
+    th:nth-child(6),
+    td:nth-child(6) {
+      width: 10%;
+    }
+
+    th:nth-child(7),
+    td:nth-child(7) {
+      width: 22%;
+    }
+
+    th {
+      background-color: #f4f4f4;
+      text-align: center;
+      /* bỏ cursor pointer vì không còn sort trên tiêu đề */
+      cursor: default;
+    }
+
+    td a {
+      color: #3498db;
+      text-decoration: none;
+      word-break: break-word;
+    }
+
+    td a:hover {
+      text-decoration: underline;
+    }
+
+    td ul {
+      padding-left: 20px;
+      margin: 0;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+
+    tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 50px;
+      font-size: 0.9em;
+      color: #7f8c8d;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Trivy Security Report</h1>
+
+    <div class="section">
+      <h2>Summary</h2>
+
+      <% let total=0, fixed=0, unfixed=0; if (Array.isArray(data?.Results)) { data.Results.forEach(result=> {
+        if (Array.isArray(result?.Vulnerabilities)) {
+        total += result.Vulnerabilities.length;
+        fixed += result.Vulnerabilities.filter(v => v.FixedVersion).length;
+        unfixed += result.Vulnerabilities.filter(v => !v.FixedVersion).length;
+        }
+        });
+        }
+        %>
+
+        <div class="summary">
+          <div class="summary-item">
+            <h2>
+              <%= total %>
+            </h2>
+            <p>Total Vulnerabilities</p>
+          </div>
+          <div class="summary-item">
+            <h2>
+              <%= fixed %>
+            </h2>
+            <p>Fixed Vulnerabilities</p>
+          </div>
+          <div class="summary-item">
+            <h2>
+              <%= unfixed %>
+            </h2>
+            <p>Unfixed Vulnerabilities</p>
+          </div>
+        </div>
+    </div>
+
+    <div class="section">
+      <h2>Vulnerabilities Overview</h2>
+
+      <div class="controls">
+        <label for="severityFilter">Filter by Severity:</label>
+        <select id="severityFilter">
+          <option value="">All</option>
+          <option value="CRITICAL">Critical</option>
+          <option value="HIGH">High</option>
+          <option value="MEDIUM">Medium</option>
+          <option value="LOW">Low</option>
+          <option value="UNKNOWN">Unknown</option>
+        </select>
+
+        <label for="sortOption">Sort by:</label>
+        <select id="sortOption">
+          <option value="">None</option>
+          <option value="severity-asc">Severity ↑</option>
+          <option value="severity-desc">Severity ↓</option>
+          <option value="version-asc">Version ↑</option>
+          <option value="version-desc">Version ↓</option>
+        </select>
+      </div>
+
+      <% if (Array.isArray(data?.Results) && data.Results.length> 0) { %>
+        <% data.Results.forEach((result, index)=> { %>
+          <% if (Array.isArray(result?.Vulnerabilities) && result.Vulnerabilities.length> 0) { %>
+            <h3>Target: <%= result.Target %>
+            </h3>
+            <table id="vulnTable-<%= index %>" class="vuln-table">
+              <thead>
+                <tr>
+                  <th>Package</th>
+                  <th>Version</th>
+                  <th>Vulnerability</th>
+                  <th>Severity</th>
+                  <th>Description</th>
+                  <th>Fixed Version</th>
+                  <th>References</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% result.Vulnerabilities.forEach(vuln=> { %>
+                  <tr data-severity="<%= vuln.Severity.toUpperCase() %>">
+                    <td>
+                      <%= vuln.PkgName %>
+                    </td>
+                    <td>
+                      <%= vuln.InstalledVersion %>
+                    </td>
+                    <td><a href="<%= vuln.PrimaryURL %>" target="_blank">
+                        <%= vuln.VulnerabilityID %>
+                      </a></td>
+                    <td>
+                      <%= vuln.Severity %>
+                    </td>
+                    <td>
+                      <%= vuln.Description %>
+                    </td>
+                    <td>
+                      <%= vuln.FixedVersion || 'N/A' %>
+                    </td>
+                    <td class="references">
+                      <ul>
+                        <% vuln.References.forEach(ref=> { %>
+                          <li><a href="<%= ref %>" target="_blank">
+                              <%= ref %>
+                            </a></li>
+                          <% }) %>
+                      </ul>
+                    </td>
+                  </tr>
+                  <% }) %>
+              </tbody>
+            </table>
+            <% } %>
+              <% }) %>
+                <% } else { %>
+                  <p>No vulnerabilities found or invalid data format.</p>
+                  <% } %>
+    </div>
+
+    <div class="footer">
+      <p>Generated by Trivy Security Report System | <%= new Date().toLocaleDateString() %>
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Filter by severity
+    const filterSelect = document.getElementById('severityFilter');
+    filterSelect.addEventListener('change', () => {
+      const value = filterSelect.value;
+      document.querySelectorAll('.vuln-table tbody tr').forEach(row => {
+        const severity = row.getAttribute('data-severity');
+        row.style.display = (!value || severity === value.toUpperCase()) ? '' : 'none';
+      });
+    });
+
+    // Sort by version/severity
+    const sortSelect = document.getElementById('sortOption');
+    sortSelect.addEventListener('change', () => {
+      const option = sortSelect.value;
+      document.querySelectorAll('.vuln-table').forEach(table => {
+        const tbody = table.querySelector('tbody');
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+
+        let index = option.includes('severity') ? 3 : 1;
+        let asc = option.endsWith('asc');
+
+        if (!option) return;
+
+        rows.sort((a, b) => {
+          let valA = a.children[index].innerText.trim().toLowerCase();
+          let valB = b.children[index].innerText.trim().toLowerCase();
+
+          if (index === 3) {
+            const order = ['critical', 'high', 'medium', 'low', 'unknown'];
+            valA = order.indexOf(valA);
+            valB = order.indexOf(valB);
+          }
+
+          if (valA < valB) return asc ? -1 : 1;
+          if (valA > valB) return asc ? 1 : -1;
+          return 0;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+      });
+    });
+  </script>
+</body>
+
+</html>

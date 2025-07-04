@@ -9,82 +9,140 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.1/css/all.min.css"
     integrity="sha512-5Hs3dF2AEPkpNAR7UiOHba+lRSJNeM2ECkwxUIxC1Q/FLycGTbNapWXB4tP889k5T5Ju8fs4b1P5z/iB4nMfSQ=="
     crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      background-color: #e9ecef;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
+    .scan-form-card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #343a40;
+      margin-bottom: 1rem;
+    }
+
+    .section-divider {
+      border-top: 1px solid #dee2e6;
+      margin: 1.5rem 0;
+    }
+
+    .btn-primary {
+      width: 100%;
+    }
+
+    .form-check-label {
+      cursor: pointer;
+    }
+
+    .form-check {
+      margin-bottom: 0.5rem;
+    }
+  </style>
   <title>Web Scan</title>
 </head>
 
 <body>
-  <div class="container mt-5">
-    <form>
-      <div class="mb-3" action="/" method="POST">
-        <label class="form-label">Chọn 1 trong 2 loại kiểm tra:</label>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-xl-10 col-lg-11">
+        <div class="card scan-form-card p-5 bg-white mx-auto" style="max-width: 1100px;">
+          <h4 class="form-title text-center mb-4">
+            <i class="fas fa-search me-2"></i>Web Security Scan
+          </h4>
 
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="scanType" id="DAST" value="DAST" />
-          <label class="form-check-label" for="DAST">DAST - Dynamic Application Security Testing</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="scanType" id="SAST" value="SAST" />
-          <label class="form-check-label" for="SAST">SAST - Static Application Security Testing</label>
-        </div>
-      </div>
+          <form id="scanForm">
+            <!-- Scan Type -->
+            <div class="mb-3">
+              <label class="form-label">1. Choose scan type:</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="scanType" id="DAST" value="DAST">
+                <label class="form-check-label" for="DAST">DAST - Dynamic Application Security Testing</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="scanType" id="SAST" value="SAST">
+                <label class="form-check-label" for="SAST">SAST - Static Application Security Testing</label>
+              </div>
+            </div>
 
-      <div id="tools1" class="mb-3 d-none">
-        <label class="form-label">Chọn 1 trong 3 phương án công cụ:</label>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="tool" id="ZAP" value="ZAP" />
-          <label class="form-check-label" for="ZAP">ZAP</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="tool" id="Wapiti" value="Wapiti" />
-          <label class="form-check-label" for="Wapiti">Wapiti</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="tool" id="bothDAST" value="bothDAST" />
-          <label class="form-check-label" for="bothDAST">Both</label>
-        </div>
-      </div>
+            <!-- Tool Options for DAST -->
+            <div id="tools1" class="mb-3 d-none">
+              <label class="form-label">2. Choose DAST tool:</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tool" id="ZAP" value="ZAP">
+                <label class="form-check-label" for="ZAP">ZAP</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tool" id="Wapiti" value="Wapiti">
+                <label class="form-check-label" for="Wapiti">Wapiti</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tool" id="bothDAST" value="bothDAST">
+                <label class="form-check-label" for="bothDAST">Both</label>
+              </div>
+            </div>
 
-      <div id="tools2" class="mb-3 d-none">
-        <label class="form-label">Chọn 1 trong 3:</label>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="tool" id="SonarQube" value="SonarQube" />
-          <label class="form-check-label" for="SonarQube">SonarQube</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="tool" id="Trivy" value="Trivy" />
-          <label class="form-check-label" for="Trivy">Trivy</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="tool" id="bothSAST" value="bothSAST" />
-          <label class="form-check-label" for="bothSAST">Both</label>
-        </div>
-      </div>
+            <!-- Tool Options for SAST -->
+            <div id="tools2" class="mb-3 d-none">
+              <label class="form-label">2. Choose SAST tool:</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tool" id="SonarQube" value="SonarQube">
+                <label class="form-check-label" for="SonarQube">SonarQube</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tool" id="Trivy" value="Trivy">
+                <label class="form-check-label" for="Trivy">Trivy</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="tool" id="bothSAST" value="bothSAST">
+                <label class="form-check-label" for="bothSAST">Both</label>
+              </div>
+            </div>
 
-      <div id="accessLevelContainer" class="mb-3 d-none">
-        <label class="form-label">Chọn quyền truy cập:</label>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="accessLevel" id="public" value="public" />
-          <label class="form-check-label" for="public">Public</label>
-        </div>
-        <div class="form-check">
-          <input class="form-check-input" type="radio" name="accessLevel" id="private" value="private" />
-          <label class="form-check-label" for="private">Private</label>
-        </div>
-      </div>
+            <!-- Access Level -->
+            <div id="accessLevelContainer" class="mb-3 d-none">
+              <label class="form-label">3. Access level:</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="accessLevel" id="public" value="public">
+                <label class="form-check-label" for="public">Public</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="accessLevel" id="private" value="private">
+                <label class="form-check-label" for="private">Private</label>
+              </div>
+            </div>
 
-      <div id="tokenInputContainer" class="mb-3 d-none">
-        <input type="text" class="form-control" id="accessToken" name="token" placeholder="Nhập token xác thực" />
-      </div>
+            <!-- Token -->
+            <div id="tokenInputContainer" class="mb-3 d-none">
+              <input type="text" class="form-control" id="accessToken" name="token"
+                placeholder="Enter authentication token">
+            </div>
 
-      <div class="mb-3 d-none" id="urlInputContainer">
-        <input type="text" class="form-control" id="inputUrl" name="url" placeholder="Enter URL" />
+            <!-- URL -->
+            <div id="urlInputContainer" class="mb-3 d-none">
+              <input type="text" class="form-control" id="inputUrl" name="url" placeholder="Enter URL to scan">
+            </div>
+
+            <!-- Submit & Back -->
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-primary" id="submitBtn" disabled>
+                <i class="fas fa-play me-2"></i>Start Scan
+              </button>
+              <a href="/" class="text-center text-muted text-decoration-none">
+                <i class="fas fa-arrow-left me-1"></i>Back to previous page
+              </a>
+            </div>
+
+          </form>
+        </div>
       </div>
-      <div class="col-3 mt-3">
-        <button type="submit" class="btn btn-primary col-8" id="submitBtn">Scan</button>
-        <a href="/" class="text-muted mx-2 col-4">Back</a>
-      </div>
-    </form>
+    </div>
   </div>
 
   <script>
