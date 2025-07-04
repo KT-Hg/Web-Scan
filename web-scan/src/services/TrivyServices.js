@@ -1,6 +1,8 @@
 import { exec } from "child_process";
 import path from "path";
-require("dotenv").config();
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const reportPathOG = process.env.REPORT_PATH;
 

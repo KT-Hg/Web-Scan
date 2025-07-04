@@ -1,16 +1,17 @@
-import db from "../models/index";
+import fs from "fs/promises";
+import path from "path";
 import net from "net";
+import { exec } from "child_process";
 import axios from "axios";
 import moment from "moment";
 import Docker from "dockerode";
+require("dotenv").config();
+
+import db from "../models/index";
 import downloadSonarQubeReport from "./downloadrp.js";
-import { exec } from "child_process";
-import path from "path";
-import fs from "fs/promises";
 import TrivyServices from "./TrivyServices.js";
 import crudServices from "../services/crudServices";
 import { readFile } from "fs/promises";
-require("dotenv").config();
 
 const containerId = process.env.CONTAINER_ID;
 const containerIdZap = process.env.CONTAINER_ID_ZAP;
@@ -20,6 +21,15 @@ const sonarToken = process.env.SONAR_TOKEN;
 const sonarPassword = process.env.SONAR_PASSWORD;
 
 const docker = new Docker();
+
+function execShellCommand(command) {
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) return reject(error);
+      resolve(stdout);
+    });
+  });
+}
 
 async function execCommandInContainer(containerId, command) {
   try {
@@ -52,27 +62,6 @@ async function execCommandInContainer(containerId, command) {
   }
 }
 
-function execShellCommand(command) {
-  return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) return reject(error);
-      resolve(stdout);
-    });
-  });
-}
-
-function combineTokenWithGitUrl(token, gitUrl) {
-  if (!token) return gitUrl;
-  const regex = /^https:\/\/github\.com\/(.+?)(\.git)?$/;
-  const match = gitUrl.match(regex);
-  if (!match)
-    throw new Error(
-      "GitHub URL không hợp lệ. Phải có định dạng https://github.com/username/repo.git"
-    );
-  const path = match[1];
-  return `https://${token}@github.com/${path}.git`;
-}
-
 async function isPortAvailable(port, containerId) {
   const command = `docker exec -u root ${containerId} netstat -tulnp`;
   try {
@@ -89,6 +78,18 @@ async function getAvailablePort(startPort, containerId, range = 100) {
     if (await isPortAvailable(port, containerId)) return port;
   }
   throw new Error("No available ports found");
+}
+
+function combineTokenWithGitUrl(token, gitUrl) {
+  if (!token) return gitUrl;
+  const regex = /^https:\/\/github\.com\/(.+?)(\.git)?$/;
+  const match = gitUrl.match(regex);
+  if (!match)
+    throw new Error(
+      "GitHub URL không hợp lệ. Phải có định dạng https://github.com/username/repo.git"
+    );
+  const path = match[1];
+  return `https://${token}@github.com/${path}.git`;
 }
 
 async function createContainerSonarQube(projectKey) {
@@ -175,44 +176,6 @@ async function getSourceCodeGithub(target) {
 async function deleteSourceCodeOnServer(target) {
   const command = ["sh", "-c", `cd sonarqube && rm -r ${target}`];
   await execCommandInContainer(containerIdServer, command);
-}
-
-async function checkAndMergeDASTReports(timestamp) {
-  const zapReportName = `DAST_ZAP_Report_${timestamp}`;
-  const wapitiReportName = `DAST_Wapiti_Report_${timestamp}`;
-  const zapReport = await crudServices.getReportByName(zapReportName);
-  const wapitiReport = await crudServices.getReportByName(wapitiReportName);
-  if (!zapReport || !wapitiReport) throw new Error("Một trong hai báo cáo không tồn tại.");
-  if (!zapReport.isProcessing && !wapitiReport.isProcessing) {
-    const mergedData = {
-      name: `DAST_Report_${timestamp}`,
-      type: "DAST",
-      tool: "ZAP, Wapiti",
-      isProcessing: "0",
-    };
-    await crudServices.createNewReport(mergedData);
-    return "Đã tạo báo cáo tổng hợp thành công.";
-  }
-  return "Một trong hai báo cáo vẫn đang xử lý.";
-}
-
-async function checkAndMergeSASTReports(timestamp) {
-  const trivyReportName = `SAST_Trivy_Report_${timestamp}`;
-  const sonarReportName = `SAST_SonarQube_Report_${timestamp}`;
-  const trivyReport = await crudServices.getReportByName(trivyReportName);
-  const sonarReport = await crudServices.getReportByName(sonarReportName);
-  if (!trivyReport || !sonarReport) throw new Error("Một trong hai báo cáo không tồn tại.");
-  if (!trivyReport.isProcessing && !sonarReport.isProcessing) {
-    const mergedData = {
-      name: `SAST_Report_${timestamp}`,
-      type: "SAST",
-      tool: "Trivy, SonarQube",
-      isProcessing: "0",
-    };
-    await crudServices.createNewReport(mergedData);
-    return "Đã tạo báo cáo tổng hợp SAST thành công.";
-  }
-  return "Một trong hai báo cáo SAST vẫn đang xử lý.";
 }
 
 async function scanWapiti(target, tool = "Wapiti") {
@@ -331,6 +294,44 @@ async function scanSonarQube(target, tool = "SonarQube", token = "") {
   await crudServices.updateReportData(newData);
   if (tool === "bothSAST") await checkAndMergeSASTReports(timestamp);
   return "Scan SonarQube successfully";
+}
+
+async function checkAndMergeDASTReports(timestamp) {
+  const zapReportName = `DAST_ZAP_Report_${timestamp}`;
+  const wapitiReportName = `DAST_Wapiti_Report_${timestamp}`;
+  const zapReport = await crudServices.getReportByName(zapReportName);
+  const wapitiReport = await crudServices.getReportByName(wapitiReportName);
+  if (!zapReport || !wapitiReport) throw new Error("Một trong hai báo cáo không tồn tại.");
+  if (!zapReport.isProcessing && !wapitiReport.isProcessing) {
+    const mergedData = {
+      name: `DAST_Report_${timestamp}`,
+      type: "DAST",
+      tool: "ZAP, Wapiti",
+      isProcessing: "0",
+    };
+    await crudServices.createNewReport(mergedData);
+    return "Đã tạo báo cáo tổng hợp thành công.";
+  }
+  return "Một trong hai báo cáo vẫn đang xử lý.";
+}
+
+async function checkAndMergeSASTReports(timestamp) {
+  const trivyReportName = `SAST_Trivy_Report_${timestamp}`;
+  const sonarReportName = `SAST_SonarQube_Report_${timestamp}`;
+  const trivyReport = await crudServices.getReportByName(trivyReportName);
+  const sonarReport = await crudServices.getReportByName(sonarReportName);
+  if (!trivyReport || !sonarReport) throw new Error("Một trong hai báo cáo không tồn tại.");
+  if (!trivyReport.isProcessing && !sonarReport.isProcessing) {
+    const mergedData = {
+      name: `SAST_Report_${timestamp}`,
+      type: "SAST",
+      tool: "Trivy, SonarQube",
+      isProcessing: "0",
+    };
+    await crudServices.createNewReport(mergedData);
+    return "Đã tạo báo cáo tổng hợp SAST thành công.";
+  }
+  return "Một trong hai báo cáo SAST vẫn đang xử lý.";
 }
 
 async function getReport(reportName) {
