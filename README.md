@@ -40,18 +40,10 @@ docker network create my_network
 
 ---
 
-<<<<<<< HEAD
-Dưới đây là phiên bản **đã được bổ sung phần tạo CSDL `WebScan-development` bằng CLI** vào tài liệu của bạn — phù hợp với nội dung đã có:
-
----
-
-=======
->>>>>>> b8b997827471aab77857e2670be9492384b083a5
 ### 3. Khởi chạy MySQL và phpMyAdmin
 
 ```bash
 # Container MySQL
-<<<<<<< HEAD
 docker run -d \
   --name mysql-container \
   --network my_network \
@@ -67,19 +59,12 @@ docker run -d \
   -e PMA_HOST=mysql-container \
   -p 8080:80 \
   phpmyadmin/phpmyadmin:latest
-=======
-docker run -d   --name mysql-container   --network my_network   -e MYSQL_ALLOW_EMPTY_PASSWORD=yes   -e MYSQL_DATABASE=mydb   -p 3306:3306   mysql:latest
-
-# Container phpMyAdmin
-docker run -d   --name phpmyadmin-container   --network my_network   -e PMA_HOST=mysql-container   -p 8080:80   phpmyadmin/phpmyadmin:latest
->>>>>>> b8b997827471aab77857e2670be9492384b083a5
 ```
 
 > 🧭 Truy cập phpMyAdmin tại: [http://localhost:8080](http://localhost:8080)
 
 ---
 
-<<<<<<< HEAD
 ### 3.1. Tạo cơ sở dữ liệu `WebScan-development`
 
 #### 🧑‍💻 Cách 1: Tạo qua dòng lệnh (CLI)
@@ -112,8 +97,6 @@ CREATE DATABASE `WebScan-development`;
 
 Bạn có thể dán phần trên ngay sau mục **"### 3. Khởi chạy MySQL và phpMyAdmin"** trong tài liệu chính của bạn. Nếu cần mình tích hợp toàn bộ file hoàn chỉnh để bạn copy luôn, mình có thể hỗ trợ ngay.
 
-=======
->>>>>>> b8b997827471aab77857e2670be9492384b083a5
 ### 4. Chạy OWASP ZAP ở chế độ daemon
 
 ```bash
