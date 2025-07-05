@@ -47,11 +47,15 @@ docker network create my_network
 
 ### 3. Khởi chạy MySQL và phpMyAdmin
 
-```bash
-# Container MySQL
-docker run -d --name mysql-container --network my_network -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=mydb -p 3306:3306 mysql:latest
+##### Container MySQL
 
-# Container phpMyAdmin
+```bash
+docker run -d --name mysql-container --network my_network -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=mydb -p 3306:3306 mysql:latest
+```
+
+###### Container phpMyAdmin
+
+```bash
 docker run -d --name phpmyadmin-container --network my_network -e PMA_HOST=mysql-container -p 8080:80 phpmyadmin/phpmyadmin:latest
 ```
 
