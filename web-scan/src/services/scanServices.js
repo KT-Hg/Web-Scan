@@ -200,6 +200,7 @@ async function scanWapiti(target, tool = "Wapiti") {
     reportPath,
     "--flush-session",
   ];
+  console.log(`Executing command in container ${containerId}:`, command.join(" "));
   await execCommandInContainer(containerId, command);
   const newData = await crudServices.getReportByName(fileName);
   if (!newData) throw new Error("Report not found after scan.");

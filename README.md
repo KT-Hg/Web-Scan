@@ -25,10 +25,15 @@ Trước khi bắt đầu, hãy đảm bảo rằng bạn đã cài:
 
 ### 1. Build và chạy container ứng dụng
 
+🔹 **Chạy trong thư mục `Docker/`**:
+
 ```bash
 docker build -t security-tools .
-docker run -it -d --name security-container security-tools
+docker run -it --name security-container -v REPORT_PATH:/tmp -d security-tools
 ```
+
+> 📝 Lưu lại container ID để cấu hình biến môi trường.
+> ⚠️ Thay `REPORT_PATH` bằng đường dẫn thực tế (ví dụ: `D:/KLTN/RP/` nếu dùng Windows).
 
 ---
 
@@ -44,21 +49,10 @@ docker network create my_network
 
 ```bash
 # Container MySQL
-docker run -d \
-  --name mysql-container \
-  --network my_network \
-  -e MYSQL_ALLOW_EMPTY_PASSWORD=yes \
-  -e MYSQL_DATABASE=mydb \
-  -p 3306:3306 \
-  mysql:latest
+docker run -d --name mysql-container --network my_network -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=mydb -p 3306:3306 mysql:latest
 
 # Container phpMyAdmin
-docker run -d \
-  --name phpmyadmin-container \
-  --network my_network \
-  -e PMA_HOST=mysql-container \
-  -p 8080:80 \
-  phpmyadmin/phpmyadmin:latest
+docker run -d --name phpmyadmin-container --network my_network -e PMA_HOST=mysql-container -p 8080:80 phpmyadmin/phpmyadmin:latest
 ```
 
 > 🧭 Truy cập phpMyAdmin tại: [http://localhost:8080](http://localhost:8080)
@@ -95,19 +89,32 @@ CREATE DATABASE `WebScan-development`;
 
 ---
 
-Bạn có thể dán phần trên ngay sau mục **"### 3. Khởi chạy MySQL và phpMyAdmin"** trong tài liệu chính của bạn. Nếu cần mình tích hợp toàn bộ file hoàn chỉnh để bạn copy luôn, mình có thể hỗ trợ ngay.
+### 4. Tạo volumes và chạy container server
 
-### 4. Chạy OWASP ZAP ở chế độ daemon
+```bash
+docker volume create zap_volume
+docker volume create sonarqube_volume
+
+docker run -it -d --name server --network my_network -v "zap_volume:/zap" -v "sonarqube_volume:/sonarqube" security-tools
+```
+
+> 📝 Lưu lại container ID để cấu hình biến môi trường.
+
+---
+
+### 5. Chạy OWASP ZAP ở chế độ daemon
 
 ```bash
 docker run -it -d   --name zap   -v REPORT_PATH:/tmp   ghcr.io/zaproxy/zaproxy:weekly   zap.sh -daemon
 ```
 
+> 📝 Lưu lại container ID để cấu hình biến môi trường.
+
 > ⚠️ Thay `REPORT_PATH` bằng đường dẫn thực tế (ví dụ: `D:/KLTN/RP/` nếu dùng Windows).
 
 ---
 
-### 5. Chạy SonarQube Server
+### 6. Chạy SonarQube Server
 
 ```bash
 docker run -d   --name sonarqube_container   --network my_network   -p 9000:9000 -p 9091:9091   sonarqube:latest
@@ -117,33 +124,35 @@ docker run -d   --name sonarqube_container   --network my_network   -p 9000:9000
 
 ---
 
-### 6. Tạo token trên SonarQube
+### 7. Tạo token trên SonarQube
 
 ```bash
 curl -u admin:admin -X POST "http://localhost:9000/api/user_tokens/generate?name=my-token"
 ```
 
-> 📝 Lưu lại token được tạo. Bạn sẽ cần nó ở bước tiếp theo.
+> 📝 Lưu lại Token để cấu hình biến môi trường.
 
 ---
 
 ## ⚙️ Biến môi trường
 
 ```env
-PORT = 8888
-NODE_ENV = development
+PORT=8888
+NODE_ENV=development
 
-CONTAINER_ID = ""           # security-container
-CONTAINER_ID_ZAP = ""       # zap
-CONTAINER_ID_SERVER = ""    # sonar-scanner server
-SONAR_TOKEN = ""            # từ lệnh curl tạo token
-SONAR_PASSWORD = ""
-REPORT_PATH = ""            # Thay đổi đường dẫn báo cáo tại đây
+CONTAINER_ID =                # ID container security-tools
+CONTAINER_ID_ZAP =            # ID container ZAP
+CONTAINER_ID_SERVER =         # ID container server
+SONAR_TOKEN =                 # Token từ SonarQube
+SONAR_PASSWORD = "admin"      # Mặc định, thay nếu bạn đã đổi
+REPORT_PATH =                 # Đường dẫn chứa báo cáo (trên máy host)
 ```
 
 ---
 
-### 7. Cài đặt thư viện Node.js
+### 8. Cài đặt thư viện Node.js
+
+🔹 **Chạy trong thư mục `web-scan/`**:
 
 ```bash
 npm install
@@ -151,7 +160,9 @@ npm install
 
 ---
 
-### 8. Chạy migrate cơ sở dữ liệu
+### 9. Chạy migrate cơ sở dữ liệu
+
+🔹 **Chạy trong thư mục `web-scan/`**:
 
 ```bash
 npx sequelize-cli db:migrate

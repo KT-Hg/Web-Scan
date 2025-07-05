@@ -50,4 +50,4 @@ async function downloadSonarQubeReport(projectKey, reportPath) {
   });
 }
 
-export { checkSonarQubeStatus, waitForSonarQubeCompletion, downloadSonarQubeReport };
+export default downloadSonarQubeReport;
