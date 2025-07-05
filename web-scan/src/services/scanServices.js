@@ -43,11 +43,7 @@ async function execCommandInContainer(containerId, command) {
     const stdoutChunks = [];
     const stderrChunks = [];
     await new Promise((resolve, reject) => {
-      container.modem.demuxStream(
-        stream,
-        { write: (chunk) => stdoutChunks.push(chunk) },
-        { write: (chunk) => stderrChunks.push(chunk) }
-      );
+      container.modem.demuxStream(stream, { write: (chunk) => stdoutChunks.push(chunk) }, { write: (chunk) => stderrChunks.push(chunk) });
       stream.on("end", resolve);
       stream.on("error", reject);
     });
@@ -84,10 +80,7 @@ function combineTokenWithGitUrl(token, gitUrl) {
   if (!token) return gitUrl;
   const regex = /^https:\/\/github\.com\/(.+?)(\.git)?$/;
   const match = gitUrl.match(regex);
-  if (!match)
-    throw new Error(
-      "GitHub URL không hợp lệ. Phải có định dạng https://github.com/username/repo.git"
-    );
+  if (!match) throw new Error("GitHub URL không hợp lệ. Phải có định dạng https://github.com/username/repo.git");
   const path = match[1];
   return `https://${token}@github.com/${path}.git`;
 }
@@ -200,7 +193,6 @@ async function scanWapiti(target, tool = "Wapiti") {
     reportPath,
     "--flush-session",
   ];
-  console.log(`Executing command in container ${containerId}:`, command.join(" "));
   await execCommandInContainer(containerId, command);
   const newData = await crudServices.getReportByName(fileName);
   if (!newData) throw new Error("Report not found after scan.");
@@ -220,21 +212,11 @@ async function scanZAP(target, tool = "ZAP") {
     tool: "ZAP",
     isProcessing: "1",
   });
-  await execCommandInContainer(containerIdZap, ["rm", "-rf", "/home/zap/.ZAP_D/"]);
+  const commandDelete = ["rm", "-rf", "/home/zap/.ZAP_D/"];
+  await execCommandInContainer(containerIdZap, commandDelete);
   await new Promise((resolve) => setTimeout(resolve, 100));
   const freePort = await getAvailablePort(8080, containerIdZap);
-  const command = [
-    "zap.sh",
-    "-cmd",
-    "-quickurl",
-    target,
-    "-port",
-    freePort.toString(),
-    "-quickprogress",
-    "-quickout",
-    reportPath,
-  ];
-  console.log(`Executing command in container ${containerIdZap}:`, command.join(" "));
+  const command = ["zap.sh", "-cmd", "-quickurl", target, "-port", freePort.toString(), "-quickprogress", "-quickout", reportPath];
   await execCommandInContainer(containerIdZap, command);
   const newData = await crudServices.getReportByName(fileName);
   if (!newData) throw new Error("Report not found after scan.");

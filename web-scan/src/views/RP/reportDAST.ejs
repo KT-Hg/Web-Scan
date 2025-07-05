@@ -2,392 +2,143 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Wapiti & ZAP Vulnerability Report</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <meta charset="UTF-8">
+  <title>DAST Report</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {
-      background-color: #f4f4f4;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
+      background: #f8f9fa;
     }
 
-    h1,
-    h2 {
-      font-weight: 600;
+    .alert-high {
+      border-left: 6px solid #dc3545;
     }
 
-    .section-title {
-      font-size: 1.5rem;
-      margin-top: 60px;
-      margin-bottom: 20px;
-      border-bottom: 3px solid #3498db;
-      padding-bottom: 10px;
-      color: #2c3e50;
+    .alert-medium {
+      border-left: 6px solid #fd7e14;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: 40px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    .alert-low {
+      border-left: 6px solid #ffc107;
     }
 
-    .controls {
-      margin-bottom: 15px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      align-items: center;
+    .alert-info {
+      border-left: 6px solid #0dcaf0;
     }
 
-    .controls label {
-      font-weight: 600;
-      min-width: 90px;
+    .alert-title {
+      font-weight: bold;
+      font-size: 1.1rem;
     }
 
-    .controls select {
-      padding: 6px 12px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      min-width: 160px;
-    }
-
-    .table-container {
-      overflow-x: auto;
-      border-radius: 12px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      background: #fff;
-      padding: 20px;
-      margin-bottom: 40px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-      margin-top: 10px;
-    }
-
-    th,
-    td {
-      text-align: left;
-      padding: 12px;
-      border: 1px solid #ddd;
-      vertical-align: middle;
-    }
-
-    thead {
-      background-color: #3498db;
-      color: #fff;
-    }
-
-    tbody tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-
-    tbody tr:hover {
-      background-color: #ecf0f1;
-    }
-
-    .curl-cell {
+    pre {
+      white-space: pre-wrap;
       word-break: break-word;
-      overflow-wrap: anywhere;
-      white-space: normal;
-      max-width: 400px;
-      /* hoặc dùng 100% hay 30vw để responsive */
-    }
-
-    .zap-ref-cell {
-      word-break: break-word;
-      overflow-wrap: anywhere;
-      white-space: normal;
-      max-width: 600px;
-      /* bạn có thể thay bằng % hoặc vw nếu muốn responsive hơn */
-    }
-
-    .zap-solution-cell {
-      max-width: 600px;
-      /* Giới hạn chiều rộng */
-      white-space: normal;
-      /* Cho phép xuống dòng */
-      word-break: break-word;
-      /* Tự động ngắt từ nếu cần */
-      overflow-wrap: anywhere;
-    }
-
-    .zap-description-cell {
-      max-width: 600px;
-      /* Giới hạn chiều rộng */
-      white-space: normal;
-      /* Cho phép xuống dòng */
-      word-break: break-word;
-      /* Tự động ngắt từ nếu cần */
-      overflow-wrap: anywhere;
     }
   </style>
 </head>
 
 <body>
-  <div class="container">
-    <h1 class="text-center">Consolidated Vulnerability Report<br><small class="text-muted">Wapiti & OWASP ZAP</small>
-    </h1>
-
-    <h2 class="section-title">Wapiti Vulnerabilities</h2>
-    <div class="controls">
-      <label for="wapitiSeverityFilter">Severity Filter:</label>
-      <select id="wapitiSeverityFilter">
-        <option value="">All</option>
-        <option value="1">1 (Low)</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5 (High)</option>
-      </select>
-      <label for="wapitiSortSelect">Sort:</label>
-      <select id="wapitiSortSelect">
-        <option value="">None</option>
-        <option value="asc">Severity ↑</option>
-        <option value="desc">Severity ↓</option>
-      </select>
-    </div>
-    <div class="table-container">
-      <table id="wapitiTable">
-        <thead>
-          <tr>
-            <th>Category</th>
-            <th>Vulnerability ID</th>
-            <th>Severity</th>
-            <th>Method</th>
-            <th>Path</th>
-            <th>cURL</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% wapitiErrors.forEach(function(error) { %>
-            <tr>
-              <td>
-                <%= error.Classification %>
-              </td>
-              <td>
-                <%= error.VulnerabilityID %>
-              </td>
-              <td>
-                <%= error.Level %>
-              </td>
-              <td>
-                <%= error.Method %>
-              </td>
-              <td>
-                <%= error.Path %>
-              </td>
-              <td class="curl-cell">
-                <%= error.CurlCommand %>
-              </td>
-            </tr>
-            <% }); %>
-        </tbody>
-      </table>
-    </div>
-
-    <h2 class="section-title">ZAP Vulnerabilities</h2>
-    <div class="controls">
-      <label for="zapSeverityFilter">Severity Filter:</label>
-      <select id="zapSeverityFilter">
-        <option value="">All</option>
-        <option value="informational">Informational</option>
-        <option value="low">Low</option>
-        <option value="medium">Medium</option>
-        <option value="high">High</option>
-      </select>
-      <label for="zapSortSelect">Sort:</label>
-      <select id="zapSortSelect">
-        <option value="">None</option>
-        <option value="asc">Severity ↑</option>
-        <option value="desc">Severity ↓</option>
-      </select>
-    </div>
-    <div class="table-container">
-      <table id="zapTable">
-        <thead>
-          <tr>
-            <th>Alert</th>
-            <th>Risk Code</th>
-            <th>Confidence</th>
-            <th>Risk Desc</th>
-            <th>Description</th>
-            <th>Solution</th>
-            <th>References</th>
-            <th>CWE ID</th>
-            <th>Source ID</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% zapErrors.forEach(function(error) { %>
-            <tr>
-              <td>
-                <%= error.alert %>
-              </td>
-              <td>
-                <%= error.riskcode %>
-              </td>
-              <td>
-                <%= error.confidence %>
-              </td>
-              <td>
-                <%= error.riskdesc %>
-              </td>
-              <td class="zap-description-cell toggle-long-text">
-                <%- error.description %>
-              </td>
-              <td class="zap-solution-cell toggle-long-text">
-                <%- error.solution %>
-              </td>
-              <td class="zap-ref-cell toggle-long-text">
-                <%- error.references %>
-              </td>
-              <td>
-                <%= error.cweid %>
-              </td>
-              <td>
-                <%= error.sourceid %>
-              </td>
-            </tr>
-            <% }); %>
-        </tbody>
-      </table>
+  <div class="container my-4">
+    <h1 class="mb-3">DAST Consolidated Report</h1>
+    <div class="mb-4 text-muted">
+      <div>Total ZAP Alerts: <%= zapErrors.length %>
+      </div>
+      <div>Total Wapiti Alerts: <%= wapitiErrors.length %>
+      </div>
     </div>
   </div>
-  <!-- Modal hiển thị nội dung đầy đủ -->
-  <div class="modal fade" id="longTextModal" tabindex="-1" role="dialog" aria-labelledby="longTextModalLabel"
-    aria-hidden="true"
-    style="display:none;position:fixed;z-index:9999;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);align-items:center;justify-content:center;">
-    <div
-      style="background:#fff;max-width:800px;width:90vw;padding:24px 18px;border-radius:8px;position:relative;margin:40px auto;">
-      <button type="button" id="closeLongTextModal"
-        style="position:absolute;top:8px;right:12px;font-size:22px;background:none;border:none;">&times;</button>
-      <div id="longTextModalContent" style="max-height:70vh;overflow:auto;"></div>
-    </div>
+
+  <!-- Filter Section -->
+  <div class="container my-4">
+    <form id="filterForm" class="row g-3 mb-4">
+      <div class="col-md-3">
+        <label for="riskFilter" class="form-label">Filter by Risk</label>
+        <select class="form-select" id="riskFilter" name="risk">
+          <option value="">All</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+          <option value="info">Informational</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <label for="searchName" class="form-label">Alert Name Contains</label>
+        <input type="text" class="form-control" id="searchName" name="name" placeholder="e.g. SQLi, XSS">
+      </div>
+      <div class="col-md-3 align-self-end">
+        <button type="button" class="btn btn-primary" onclick="applyFilter()">Apply Filter</button>
+        <button type="button" class="btn btn-secondary" onclick="resetFilter()">Clear</button>
+      </div>
+    </form>
+
+    <h2 class="mb-3">ZAP Alerts</h2>
+    <% zapErrors.forEach(function(alert, idx) { let risk=alert.riskdesc.toLowerCase(); let
+      riskClass=risk.includes('high') ? 'alert-high' : risk.includes('medium') ? 'alert-medium' : risk.includes('low')
+      ? 'alert-low' : 'alert-info' ; let riskShort=risk.includes('high') ? 'high' : risk.includes('medium') ? 'medium' :
+      risk.includes('low') ? 'low' : 'info' ; let alertHtmlId=`zap-alert-${idx}`; %>
+      <div class="mb-4 p-3 bg-light rounded <%= riskClass %> alert-item" data-risk="<%= riskShort %>"
+        data-alert-name="<%= alert.alert.toLowerCase() %>" id="<%= alertHtmlId %>">
+        <div class="alert-title mb-1">
+          <%= alert.alert %> (<span class="text-danger">
+              <%= alert.riskdesc %>
+            </span>)
+        </div>
+        <div class="small text-muted mb-2">
+          Confidence: <%= alert.confidence %> | Risk Code: <%= alert.riskcode %> | CWE: <%= alert.cweid %> | Source ID:
+                <%= alert.sourceid %>
+        </div>
+        <div class="mb-2"><strong>Description:</strong> <span><%- alert.description %></span></div>
+        <div class="mb-2"><strong>Solution:</strong> <span><%- alert.solution %></span></div>
+        <% if (alert.references) { %>
+          <div><strong>References:</strong> <span><%- alert.references %></span></div>
+          <% } %>
+      </div>
+      <% }); %>
+
+        <h2 class="mt-5 mb-3">Wapiti Alerts</h2>
+        <% wapitiErrors.forEach(function(alert, idx) { let risk=parseInt(alert.Level); let riskClass=risk>= 5 ?
+          'alert-high' :
+          risk >= 3 ? 'alert-medium' :
+          risk >= 2 ? 'alert-low' : 'alert-info';
+          let riskShort = risk >= 5 ? 'high' :
+          risk >= 3 ? 'medium' :
+          risk >= 2 ? 'low' : 'info';
+          let alertHtmlId = `wapiti-alert-${idx}`;
+          %>
+          <div class="mb-4 p-3 bg-light rounded <%= riskClass %> alert-item" data-risk="<%= riskShort %>"
+            data-alert-name="<%= alert.VulnerabilityID.toLowerCase() %>" id="<%= alertHtmlId %>">
+            <div class="alert-title mb-1">
+              <%= alert.VulnerabilityID %> (<span class="text-danger">Severity: <%= alert.Level %></span>)
+            </div>
+            <div class="small text-muted mb-2">
+              Category: <%= alert.Classification %> | Method: <%= alert.Method %>
+            </div>
+            <div class="mb-2"><strong>Path:</strong> <code><%= alert.Path %></code></div>
+            <div><strong>cURL:</strong> <code><%= alert.CurlCommand %></code></div>
+          </div>
+          <% }); %>
   </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const wapitiSeverityOrder = { '1': 1, '2': 2, '3': 3, '4': 4, '5': 5 };
-    const zapSeverityOrder = { 'informational': 0, 'low': 1, 'medium': 2, 'high': 3 };
-
-    function filterTable(tableId, selectId, colIndex) {
-      const filterValue = document.getElementById(selectId).value.toLowerCase();
-      const rows = document.querySelectorAll(`#${tableId} tbody tr`);
-      rows.forEach(row => {
-        const cellText = row.children[colIndex].textContent.trim().toLowerCase();
-        row.style.display = (!filterValue || cellText === filterValue) ? '' : 'none';
+    function applyFilter() {
+      var risk = document.getElementById('riskFilter').value;
+      var name = document.getElementById('searchName').value.trim().toLowerCase();
+      var alerts = document.querySelectorAll('.alert-item');
+      alerts.forEach(function (alert) {
+        var show = true;
+        if (risk && alert.dataset.risk !== risk) show = false;
+        if (name && !alert.dataset.alertName.includes(name)) show = false;
+        alert.style.display = show ? '' : 'none';
       });
     }
 
-    function sortTable(tableId, colIndex, severityMap, direction) {
-      const tbody = document.querySelector(`#${tableId} tbody`);
-      const rows = Array.from(tbody.querySelectorAll('tr'));
-      if (!direction) return;
-      rows.sort((a, b) => {
-        const aVal = severityMap[a.children[colIndex].textContent.trim().toLowerCase()] || 0;
-        const bVal = severityMap[b.children[colIndex].textContent.trim().toLowerCase()] || 0;
-        return direction === 'asc' ? aVal - bVal : bVal - aVal;
-      });
-      tbody.innerHTML = '';
-      rows.forEach(row => tbody.appendChild(row));
+    function resetFilter() {
+      document.getElementById('riskFilter').value = '';
+      document.getElementById('searchName').value = '';
+      applyFilter();
     }
-
-    document.getElementById('wapitiSeverityFilter').addEventListener('change', () => {
-      filterTable('wapitiTable', 'wapitiSeverityFilter', 2);
-    });
-    document.getElementById('wapitiSortSelect').addEventListener('change', (e) => {
-      sortTable('wapitiTable', 2, wapitiSeverityOrder, e.target.value);
-    });
-
-    document.getElementById('zapSeverityFilter').addEventListener('change', () => {
-      filterTable('zapTable', 'zapSeverityFilter', 3);
-    });
-    document.getElementById('zapSortSelect').addEventListener('change', (e) => {
-      sortTable('zapTable', 3, zapSeverityOrder, e.target.value);
-    });
-  </script>
-  <script>
-    // ...existing code...
-
-    // Đặt biến quy định số ký tự tối đa
-    const MAX_TEXT_LENGTH = 200;
-
-    // Ẩn nội dung quá dài và thêm nút popup cho tất cả các cột có class toggle-long-text
-    document.querySelectorAll('.toggle-long-text').forEach(function (cell) {
-      const fullHtml = cell.innerHTML.trim();
-      const textContent = cell.textContent.trim();
-      if (textContent.length > MAX_TEXT_LENGTH) {
-        let charCount = 0;
-        let truncatedHtml = '';
-        let reachedLimit = false;
-        cell.childNodes.forEach(node => {
-          if (reachedLimit) return;
-          if (node.nodeType === Node.TEXT_NODE) {
-            if (charCount + node.textContent.length > MAX_TEXT_LENGTH) {
-              truncatedHtml += node.textContent.slice(0, MAX_TEXT_LENGTH - charCount);
-              reachedLimit = true;
-            } else {
-              truncatedHtml += node.textContent;
-              charCount += node.textContent.length;
-            }
-          } else if (node.nodeType === Node.ELEMENT_NODE) {
-            const tempDiv = document.createElement('div');
-            tempDiv.appendChild(node.cloneNode(true));
-            const nodeText = node.textContent || '';
-            if (charCount + nodeText.length > MAX_TEXT_LENGTH) {
-              let remain = MAX_TEXT_LENGTH - charCount;
-              let inner = node.innerHTML.slice(0, remain);
-              truncatedHtml += `<${node.tagName.toLowerCase()}>${inner}</${node.tagName.toLowerCase()}>`;
-              reachedLimit = true;
-            } else {
-              truncatedHtml += tempDiv.innerHTML;
-              charCount += nodeText.length;
-            }
-          }
-        });
-
-        cell.innerHTML = `
-        <div class="solution-short">${truncatedHtml}...</div>
-        <button type="button" class="btn btn-link p-0 solution-btn" style="font-size:13px;">Xem thêm</button>
-      `;
-
-        cell.querySelector('.solution-btn').addEventListener('click', function () {
-          const modal = document.getElementById('longTextModal');
-          const modalContent = document.getElementById('longTextModalContent');
-          modalContent.innerHTML = fullHtml;
-          modal.style.display = 'flex';
-          document.body.style.overflow = 'hidden'; // Ngăn scroll ngoài
-        });
-      }
-    });
-
-    // Đóng modal khi bấm nút đóng hoặc click ra ngoài
-    document.addEventListener('DOMContentLoaded', function () {
-      const modal = document.getElementById('longTextModal');
-      const closeBtn = document.getElementById('closeLongTextModal');
-      if (closeBtn) {
-        closeBtn.onclick = function () {
-          modal.style.display = 'none';
-          document.body.style.overflow = ''; // Cho phép scroll lại
-        };
-      }
-      window.onclick = function (event) {
-        if (event.target === modal) {
-          modal.style.display = 'none';
-          document.body.style.overflow = ''; // Cho phép scroll lại
-        }
-      };
-    });
   </script>
 </body>
 
