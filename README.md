@@ -1,4 +1,35 @@
-# 🛡️ Tích hợp công cụ bảo mật với Docker, ZAP và SonarQube
+## 🔍 Giới thiệu tổng quan
+
+Dự án **"Tích hợp công cụ bảo mật với Docker, ZAP và SonarQube"** cung cấp một giải pháp DevSecOps toàn diện, tích hợp nhiều công cụ bảo mật mã nguồn và ứng dụng web. Mục tiêu chính của hệ thống là:
+
+- **Tự động hóa việc phân tích mã nguồn** (SAST) bằng **SonarQube**.
+- **Phát hiện các lỗ hổng bảo mật** trên ứng dụng web đang chạy bằng **OWASP ZAP** (DAST).
+- **Quản lý và trình bày kết quả quét bảo mật** qua một ứng dụng Node.js có giao diện người dùng.
+- **Tạo môi trường ảo hóa an toàn** sử dụng **Docker** và các **container riêng biệt** để giảm thiểu rủi ro.
+- **Hỗ trợ triển khai nhanh và dễ dàng** cho cả môi trường local và cloud.
+
+### ⚙️ Các thành phần chính
+
+| Thành phần      | Mục đích                                               |
+| --------------- | ------------------------------------------------------ |
+| **Node.js app** | Giao diện web cho phép gửi yêu cầu quét và xem báo cáo |
+| **MySQL**       | Lưu trữ thông tin người dùng, lịch sử quét, và báo cáo |
+| **phpMyAdmin**  | Giao diện trực quan để quản lý cơ sở dữ liệu           |
+| **SonarQube**   | Phân tích mã nguồn (SAST) và đo chất lượng mã          |
+| **ZAP**         | Phân tích bảo mật runtime của ứng dụng (DAST)          |
+| **Docker**      | Tạo môi trường tách biệt, dễ tái sử dụng và mở rộng    |
+
+---
+
+## ✅ Mục tiêu sử dụng
+
+Dự án này phù hợp với:
+
+- **Nhóm phát triển phần mềm** muốn tích hợp kiểm thử bảo mật ngay từ giai đoạn phát triển.
+- **Sinh viên, học viên ngành an ninh mạng** muốn tìm hiểu về DevSecOps thực tiễn.
+- **Doanh nghiệp vừa và nhỏ** muốn triển khai nhanh giải pháp kiểm thử bảo mật mã nguồn mở.
+
+## 🛡️ Tích hợp công cụ bảo mật với Docker, ZAP và SonarQube
 
 Dự án này thiết lập môi trường bảo mật sử dụng Docker, bao gồm:
 
@@ -23,43 +54,58 @@ Trước khi bắt đầu, hãy đảm bảo rằng bạn đã cài:
 
 ## 🚀 Hướng dẫn thiết lập
 
-### 1. Build và chạy container ứng dụng
+### 1. **Build và chạy container ứng dụng**
 
-🔹 **Chạy trong thư mục `Docker/`**:
+> 🎯 **Mục đích**: Tạo một container chứa mã nguồn và các công cụ bảo mật đã cài sẵn (ZAP CLI, Sonar Scanner, v.v.).
 
 ```bash
 docker build -t security-tools .
 docker run -it --name security-container -v REPORT_PATH:/tmp -d security-tools
 ```
 
+- `-t security-tools`: Gán tên cho image.
+- `-v REPORT_PATH:/tmp`: Gắn thư mục lưu báo cáo từ host vào container.
+- `-d`: Chạy container ở chế độ nền (detached).
+
 > 📝 Lưu lại container ID để cấu hình biến môi trường.
+>
 > ⚠️ Thay `REPORT_PATH` bằng đường dẫn thực tế (ví dụ: `D:/KLTN/RP/` nếu dùng Windows).
 
 ---
 
-### 2. Tạo mạng Docker
+### 2. **Tạo mạng Docker**
+
+> 🎯 **Mục đích**: Tạo một “mạng riêng” để các container có thể giao tiếp nội bộ mà không phơi bày port ra ngoài trừ khi cần thiết.
 
 ```bash
 docker network create my_network
 ```
 
+- Giúp ZAP, SonarQube, Node.js app, MySQL... kết nối an toàn với nhau.
+- Tên `my_network` sẽ dùng xuyên suốt cho các container sau.
+
 ---
 
-### 3. Khởi chạy MySQL và phpMyAdmin
+### 3. **Khởi chạy MySQL và phpMyAdmin**
 
-##### Container MySQL
+#### 🧱 Container MySQL
 
 ```bash
 docker run -d --name mysql-container --network my_network -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=mydb -p 3306:3306 mysql:latest
 ```
 
-###### Container phpMyAdmin
+- Tạo cơ sở dữ liệu `mydb` mặc định.
+- Cho phép root đăng nhập mà không cần mật khẩu (chỉ nên dùng trong môi trường phát triển).
+- Gắn vào `my_network`.
+
+#### 🖥 Container phpMyAdmin
 
 ```bash
 docker run -d --name phpmyadmin-container --network my_network -e PMA_HOST=mysql-container -p 8080:80 phpmyadmin/phpmyadmin:latest
 ```
 
-> 🧭 Truy cập phpMyAdmin tại: [http://localhost:8080](http://localhost:8080)
+- Cấu hình để phpMyAdmin kết nối tới container MySQL bằng tên host `mysql-container`.
+- Mở cổng `8080` để truy cập qua trình duyệt: [http://localhost:8080](http://localhost:8080)
 
 ---
 
@@ -93,7 +139,9 @@ CREATE DATABASE `WebScan-development`;
 
 ---
 
-### 4. Tạo volumes và chạy container server
+### 4. **Tạo volumes và chạy container server**
+
+> 🎯 **Mục đích**: Tạo môi trường server chính có sẵn các công cụ bảo mật và lưu trữ báo cáo quét (ZAP, SonarQube...).
 
 ```bash
 docker volume create zap_volume
@@ -102,42 +150,57 @@ docker volume create sonarqube_volume
 docker run -it -d --name server --network my_network -v "zap_volume:/zap" -v "sonarqube_volume:/sonarqube" security-tools
 ```
 
+- Giúp lưu dữ liệu báo cáo quét ZAP và SonarQube ở chế độ **persisted** (không mất khi container bị xóa).
+
 > 📝 Lưu lại container ID để cấu hình biến môi trường.
 
 ---
 
-### 5. Chạy OWASP ZAP ở chế độ daemon
+### 5. **Chạy OWASP ZAP ở chế độ daemon**
+
+> 🎯 **Mục đích**: Khởi chạy công cụ DAST ZAP ở chế độ nền để nhận yêu cầu quét từ ứng dụng Node.js.
 
 ```bash
-docker run -it -d   --name zap   -v REPORT_PATH:/tmp   ghcr.io/zaproxy/zaproxy:weekly   zap.sh -daemon
+docker run -it -d --name zap -v REPORT_PATH:/tmp ghcr.io/zaproxy/zaproxy:weekly zap.sh -daemon
 ```
 
+- Chạy ZAP không giao diện, chỉ lắng nghe qua API.
+- Báo cáo sẽ được xuất ra thư mục `/tmp` (đã mount từ host).
+
 > 📝 Lưu lại container ID để cấu hình biến môi trường.
-> ⚠️ Thay `REPORT_PATH` bằng đường dẫn thực tế (ví dụ: `D:/KLTN/RP/` nếu dùng Windows).
 
 ---
 
-### 6. Chạy SonarQube Server
+### 6. **Chạy SonarQube Server**
+
+> 🎯 **Mục đích**: Phân tích chất lượng và bảo mật mã nguồn (SAST) bằng SonarQube.
 
 ```bash
 docker run -d   --name sonarqube_container   --network my_network   -p 9000:9000 -p 9091:9091   sonarqube:latest
 ```
 
-> 🌐 Truy cập SonarQube tại: [http://localhost:9000](http://localhost:9000)
+- Truy cập SonarQube: [http://localhost:9000](http://localhost:9000)
+- Mặc định tài khoản: `admin` / `admin`
 
 ---
 
-### 7. Tạo token trên SonarQube
+### 7. **Tạo token trên SonarQube**
+
+> 🎯 **Mục đích**: Tạo token xác thực để Sonar Scanner CLI có thể gửi dữ liệu phân tích về SonarQube.
 
 ```bash
 curl -u admin:admin -X POST "http://localhost:9000/api/user_tokens/generate?name=my-token"
 ```
 
 > 📝 Lưu lại Token để cấu hình biến môi trường.
+>
+> 📌 **Gợi ý**: Bạn cũng có thể tạo token qua giao diện Web ở phần `My Account > Security`.
 
 ---
 
 ## ⚙️ Biến môi trường
+
+> 🎯 **Mục đích**: Cấu hình server Node.js sử dụng đúng thông tin kết nối, container, báo cáo, token,...
 
 ```env
 PORT=8888
@@ -151,29 +214,50 @@ SONAR_PASSWORD = "admin"      # Mặc định, thay nếu bạn đã đổi
 REPORT_PATH =                 # Đường dẫn chứa báo cáo (trên máy host)
 ```
 
+> 📌 Dùng `docker ps` để lấy ID container.
+
 ---
 
-### 8. Cài đặt thư viện Node.js
+### 8. **Cài đặt thư viện Node.js**
 
-🔹 **Chạy trong thư mục `web-scan/`**:
+> 🎯 **Mục đích**: Tải các dependency được định nghĩa trong `package.json`.
 
 ```bash
 npm install
 ```
 
+- Chạy trong thư mục `web-scan/`
+- Bao gồm các thư viện như `express`, `sequelize`, `axios`, `ejs`,...
+
 ---
 
-### 9. Chạy migrate cơ sở dữ liệu
+### 9. **Chạy migrate cơ sở dữ liệu**
 
-🔹 **Chạy trong thư mục `web-scan/`**:
+> 🎯 **Mục đích**: Tạo bảng trong cơ sở dữ liệu `WebScan-development` theo file `migrations`.
 
 ```bash
 npx sequelize-cli db:migrate
 ```
 
+- Tự động tạo các bảng: `Users`, `Reports`, `ScanRequests`, `ScanRequestHistories`...
+
 ---
 
-## 📄 Cấu trúc thư mục (ví dụ)
+### 10. **Khởi động ứng dụng**
+
+> 🎯 **Mục đích**: Chạy server Node.js, kết nối cơ sở dữ liệu, lắng nghe port 8888.
+
+```bash
+npm start
+```
+
+- Ứng dụng sẵn sàng nhận yêu cầu quét, đăng nhập, xuất báo cáo...
+
+> 📌 Truy cập tại: [http://localhost:8888](http://localhost:8888)
+
+---
+
+## 📄 Cấu trúc thư mục
 
 ```
 .
