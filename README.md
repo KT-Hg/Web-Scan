@@ -1,44 +1,48 @@
 ## 🔍 Giới thiệu tổng quan
 
-Dự án **"Tích hợp công cụ bảo mật với Docker, ZAP và SonarQube"** cung cấp một giải pháp DevSecOps toàn diện, tích hợp nhiều công cụ bảo mật mã nguồn và ứng dụng web. Mục tiêu chính của hệ thống là:
+Dự án **"Tích hợp công cụ bảo mật với Docker, ZAP, Wapiti, SonarQube và Trivy"** cung cấp một giải pháp DevSecOps toàn diện, tích hợp nhiều công cụ bảo mật mã nguồn và ứng dụng web. Mục tiêu chính của hệ thống là:
 
-- **Tự động hóa việc phân tích mã nguồn** (SAST) bằng **SonarQube**.
-- **Phát hiện các lỗ hổng bảo mật** trên ứng dụng web đang chạy bằng **OWASP ZAP** (DAST).
+- **Tự động hóa việc phân tích mã nguồn** (SAST) bằng **SonarQube**, **Trivy**.
+- **Phát hiện các lỗ hổng bảo mật** trên ứng dụng web đang chạy bằng **OWASP ZAP**, **Wapiti** (DAST).
 - **Quản lý và trình bày kết quả quét bảo mật** qua một ứng dụng Node.js có giao diện người dùng.
 - **Tạo môi trường ảo hóa an toàn** sử dụng **Docker** và các **container riêng biệt** để giảm thiểu rủi ro.
 - **Hỗ trợ triển khai nhanh và dễ dàng** cho cả môi trường local và cloud.
 
-### ⚙️ Các thành phần chính
+---
 
-| Thành phần      | Mục đích                                               |
-| --------------- | ------------------------------------------------------ |
-| **Node.js app** | Giao diện web cho phép gửi yêu cầu quét và xem báo cáo |
-| **MySQL**       | Lưu trữ thông tin người dùng, lịch sử quét, và báo cáo |
-| **phpMyAdmin**  | Giao diện trực quan để quản lý cơ sở dữ liệu           |
-| **SonarQube**   | Phân tích mã nguồn (SAST) và đo chất lượng mã          |
-| **ZAP**         | Phân tích bảo mật runtime của ứng dụng (DAST)          |
-| **Docker**      | Tạo môi trường tách biệt, dễ tái sử dụng và mở rộng    |
+## ⚙️ **Các thành phần chính của hệ thống**
+
+| Thành phần      | Mục đích                                                            |
+| --------------- | ------------------------------------------------------------------- |
+| **Node.js App** | Giao diện web cho phép gửi yêu cầu quét và hiển thị báo cáo kết quả |
+| **MySQL**       | Lưu trữ thông tin người dùng, lịch sử quét và dữ liệu báo cáo       |
+| **phpMyAdmin**  | Giao diện trực quan để quản lý cơ sở dữ liệu MySQL                  |
+| **SonarQube**   | Phân tích mã nguồn tĩnh (SAST) và đánh giá chất lượng mã            |
+| **OWASP ZAP**   | Phân tích bảo mật động (DAST) của ứng dụng trong runtime            |
+| **Docker**      | Cung cấp môi trường triển khai độc lập, dễ tái sử dụng và mở rộng   |
 
 ---
 
-## ✅ Mục tiêu sử dụng
+## 🛡️ **Tích hợp công cụ bảo mật với Docker, ZAP, Wapiti và SonarQube**
 
-Dự án này phù hợp với:
+Dự án xây dựng một môi trường kiểm thử bảo mật ứng dụng toàn diện dựa trên Docker, bao gồm:
 
-- **Nhóm phát triển phần mềm** muốn tích hợp kiểm thử bảo mật ngay từ giai đoạn phát triển.
-- **Sinh viên, học viên ngành an ninh mạng** muốn tìm hiểu về DevSecOps thực tiễn.
-- **Doanh nghiệp vừa và nhỏ** muốn triển khai nhanh giải pháp kiểm thử bảo mật mã nguồn mở.
+- Ứng dụng Node.js sử dụng Sequelize làm ORM để tương tác với MySQL.
+- **SonarQube** được tích hợp để thực hiện phân tích mã nguồn và đánh giá chất lượng mã.
+- **OWASP ZAP** và **Wapiti** dùng để quét và phát hiện các lỗ hổng bảo mật runtime của ứng dụng.
+- **MySQL** kết hợp với **phpMyAdmin** để dễ dàng quản lý cơ sở dữ liệu.
+- **Sonar Scanner CLI** dùng để gửi mã lên SonarQube để phân tích.
+- Tất cả các container hoạt động trong cùng một **mạng Docker** để đảm bảo khả năng kết nối và an toàn.
 
-## 🛡️ Tích hợp công cụ bảo mật với Docker, ZAP và SonarQube
+---
 
-Dự án này thiết lập môi trường bảo mật sử dụng Docker, bao gồm:
+## 🎯 **Mục tiêu sử dụng**
 
-- Dự án Node.js sử dụng Sequelize.
-- SonarQube để phân tích chất lượng mã nguồn.
-- OWASP ZAP để quét bảo mật ứng dụng.
-- MySQL + phpMyAdmin để quản lý cơ sở dữ liệu.
-- Sonar Scanner CLI để phân tích mã.
-- Mạng Docker để các container giao tiếp an toàn với nhau.
+Dự án hướng đến các đối tượng:
+
+- 👨‍💻 **Nhà phát triển phần mềm** muốn tích hợp kiểm thử bảo mật ngay trong quy trình CI/CD.
+- 🎓 **Sinh viên và học viên ngành An ninh mạng** muốn thực hành DevSecOps trong môi trường thực tế.
+- 🏢 **Doanh nghiệp vừa và nhỏ** đang tìm kiếm giải pháp kiểm thử bảo mật mã nguồn mở, triển khai nhanh và tiết kiệm chi phí.
 
 ---
 
@@ -368,4 +372,4 @@ docker network rm my_network
 
 ## 📬 Liên hệ
 
-Nếu gặp lỗi hoặc cần hỗ trợ, hãy mở issue hoặc liên hệ người phát triển.
+Nếu gặp lỗi hoặc cần hỗ trợ hãy liên hệ người phát triển.
