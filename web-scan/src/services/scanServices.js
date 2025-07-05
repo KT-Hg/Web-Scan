@@ -221,6 +221,7 @@ async function scanZAP(target, tool = "ZAP") {
     isProcessing: "1",
   });
   await execCommandInContainer(containerIdZap, ["rm", "-rf", "/home/zap/.ZAP_D/"]);
+  await new Promise((resolve) => setTimeout(resolve, 100));
   const freePort = await getAvailablePort(8080, containerIdZap);
   const command = [
     "zap.sh",
@@ -233,6 +234,7 @@ async function scanZAP(target, tool = "ZAP") {
     "-quickout",
     reportPath,
   ];
+  console.log(`Executing command in container ${containerIdZap}:`, command.join(" "));
   await execCommandInContainer(containerIdZap, command);
   const newData = await crudServices.getReportByName(fileName);
   if (!newData) throw new Error("Report not found after scan.");
