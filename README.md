@@ -113,7 +113,6 @@ docker run -it -d   --name zap   -v REPORT_PATH:/tmp   ghcr.io/zaproxy/zaproxy:w
 ```
 
 > 📝 Lưu lại container ID để cấu hình biến môi trường.
-
 > ⚠️ Thay `REPORT_PATH` bằng đường dẫn thực tế (ví dụ: `D:/KLTN/RP/` nếu dùng Windows).
 
 ---
