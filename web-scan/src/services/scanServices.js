@@ -19,6 +19,7 @@ const containerIdServer = process.env.CONTAINER_ID_SERVER;
 const reportPathOG = process.env.REPORT_PATH;
 const sonarToken = process.env.SONAR_TOKEN;
 const sonarPassword = process.env.SONAR_PASSWORD;
+const TIMEOUT_SECONDS = 300;
 
 const docker = new Docker();
 
@@ -186,13 +187,23 @@ async function scanWapiti(target, tool = "Wapiti") {
     "--url",
     target,
     "-m",
-    "htaccess,methods,cookieflags,http_headers,sql,csp,wapp,brute_login_form,csrf,ssrf",
+    "htaccess,methods,cookieflags,http_headers,sql,csp,brute_login_form,csrf,ssrf,xss",
     "-f",
     "json",
     "-o",
     reportPath,
     "--flush-session",
+    "--timeout",
+    "120", // Mỗi request timeout sau 30s
+    "--max-scan-time",
+    "600", // Dừng toàn bộ scan sau 5 phút
+    "--max-attack-time",
+    "300", // Dừng attack sau 3 phút
+    "-t",
+    "1", // Thời gian nghỉ giữa các request (anti-rate-limit)
   ];
+
+  console.log(`Running Wapiti scan on ${target} with command: ${command.join(" ")}`);
   await execCommandInContainer(containerId, command);
   const newData = await crudServices.getReportByName(fileName);
   if (!newData) throw new Error("Report not found after scan.");
@@ -214,9 +225,10 @@ async function scanZAP(target, tool = "ZAP") {
   });
   const commandDelete = ["rm", "-rf", "/home/zap/.ZAP_D/"];
   await execCommandInContainer(containerIdZap, commandDelete);
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   const freePort = await getAvailablePort(8080, containerIdZap);
   const command = ["zap.sh", "-cmd", "-quickurl", target, "-port", freePort.toString(), "-quickprogress", "-quickout", reportPath];
+  console.log(`Running ZAP scan on ${target} with command: ${command.join(" ")}`);
   await execCommandInContainer(containerIdZap, command);
   const newData = await crudServices.getReportByName(fileName);
   if (!newData) throw new Error("Report not found after scan.");
