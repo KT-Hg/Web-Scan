@@ -1,0 +1,97 @@
+=========================
+HƯỚNG DẪN CÀI ĐẶT HỆ THỐNG
+=========================
+
+YÊU CẦU TRƯỚC KHI CÀI ĐẶT:
+---------------------------
+- Đã cài sẵn Docker: https://www.docker.com/
+- Đã cài Node.js (nên dùng bản LTS): https://nodejs.org/
+- Có kết nối Internet để tải Docker images
+
+BƯỚC 1: BUILD ỨNG DỤNG BẢO MẬT
+-------------------------------
+cd vào thư mục chứa Dockerfile và chạy:
+
+    docker build -t security-tools .
+
+Tạo container từ image:
+
+    docker run -it --name security-container -v D:/Path/To/Reports:/tmp -d security-tools
+
+(Thay đường dẫn host cho phù hợp với hệ thống của bạn.)
+
+BƯỚC 2: TẠO MẠNG CHO CÁC CONTAINER
+-----------------------------------
+    docker network create my_network
+
+BƯỚC 3: CHẠY MYSQL VÀ PHPMYADMIN
+--------------------------------
+MySQL:
+
+    docker run -d --name mysql-container --network my_network -e MYSQL_ALLOW_EMPTY_PASSWORD=yes -e MYSQL_DATABASE=mydb -p 3306:3306 mysql:latest
+
+phpMyAdmin:
+
+    docker run -d --name phpmyadmin-container --network my_network -e PMA_HOST=mysql-container -p 8080:80 phpmyadmin/phpmyadmin:latest
+
+BƯỚC 4: TẠO DATABASE WebScan-development
+-----------------------------------------
+Cách 1 - CLI:
+
+    docker exec -it mysql-container mysql -u root
+    CREATE DATABASE `WebScan-development`;
+
+Cách 2 - phpMyAdmin:
+- Truy cập: http://localhost:8080
+- Đăng nhập: user = root, password = để trống
+- Chọn “New”, nhập: WebScan-development → Create
+
+BƯỚC 5: TẠO VOLUME VÀ CONTAINER SERVER
+--------------------------------------
+    docker volume create zap_volume
+    docker volume create sonarqube_volume
+
+    docker run -it -d --name server --network my_network -v "zap_volume:/zap" -v "sonarqube_volume:/sonarqube" security-tools
+
+BƯỚC 6: CHẠY OWASP ZAP (DAEMON MODE)
+------------------------------------
+    docker run -it -d --name zap -v D:/Path/To/Reports:/tmp ghcr.io/zaproxy/zaproxy:weekly zap.sh -daemon
+
+BƯỚC 7: CHẠY SONARQUBE SERVER
+-----------------------------
+    docker run -d --name sonarqube_container --network my_network -p 9000:9000 -p 9091:9091 sonarqube:latest
+
+Truy cập: http://localhost:9000  
+Tài khoản mặc định: admin / admin
+
+BƯỚC 8: TẠO TOKEN SONARQUBE
+----------------------------
+    curl -u admin:admin -X POST "http://localhost:9000/api/user_tokens/generate?name=my-token"
+
+BƯỚC 9: CẤU HÌNH BIẾN MÔI TRƯỜNG
+--------------------------------
+Tạo file `.env` trong thư mục web-scan/ với nội dung ví dụ:
+
+    PORT=8888
+    NODE_ENV=development
+    CONTAINER_ID=xxxxx
+    CONTAINER_ID_ZAP=xxxxx
+    CONTAINER_ID_SERVER=xxxxx
+    SONAR_TOKEN=xxxxx
+    SONAR_PASSWORD=admin
+    REPORT_PATH=D:/Path/To/Reports
+
+BƯỚC 10: CÀI THƯ VIỆN NODE.JS
+------------------------------
+    cd web-scan/
+    npm install
+
+BƯỚC 11: MIGRATE DATABASE
+--------------------------
+    npx sequelize-cli db:migrate
+
+BƯỚC 12: CHẠY ỨNG DỤNG
+-----------------------
+    npm start
+
+Truy cập giao diện tại: http://localhost:8888

@@ -1,0 +1,79 @@
+==========================
+HƯỚNG DẪN SỬ DỤNG HỆ THỐNG
+==========================
+
+1. TRUY CẬP ỨNG DỤNG
+---------------------
+Mở trình duyệt và truy cập địa chỉ:
+
+http://localhost:8888
+
+2. ĐĂNG NHẬP
+-------------
+Tài khoản mặc định:
+- Username: user
+- Password: user
+
+3. DASHBOARD NGƯỜI DÙNG
+------------------------
+Sau khi đăng nhập, giao diện chính bao gồm:
+
+- "Scan Website"     → Quét mới
+- "View Report"      → Xem báo cáo cũ
+- "Save Request"     → Lưu cấu hình quét để dùng sau
+
+4. THỰC HIỆN QUÉT BẢO MẬT
+--------------------------
+A. Quét DAST (ứng dụng web runtime):
+
+- Nhấn "Scan Website"
+- Bước 1: Chọn loại quét: DAST
+- Bước 2: Chọn công cụ: ZAP / Wapiti / Both
+- Nhập URL cần quét (ví dụ: https://example.com)
+- Nhấn "Start Scan"
+
+B. Quét SAST (mã nguồn):
+
+- Nhấn "Scan Website"
+- Bước 1: Chọn loại quét: SAST
+- Bước 2: Chọn công cụ: SonarQube / Trivy / Both
+- Bước 3: Chọn quyền truy cập: Public / Private
+- Nhập token (nếu cần)
+- Nhập URL chứa mã nguồn
+- Nhấn "Start Scan"
+
+5. LƯU YÊU CẦU QUÉT
+---------------------
+- Nhấn "Save Request"
+- Chọn loại quét, công cụ, quyền truy cập, token và URL
+- Nhấn "Save Scan Request"
+
+6. QUẢN LÝ YÊU CẦU VÀ BÁO CÁO
+------------------------------
+Tại Dashboard:
+
+- Scan Requests:
+  + "Run": thực hiện quét
+  + "Delete": xoá yêu cầu
+  + "Save": lưu yêu cầu
+
+- Scan Request History:
+  + Danh sách các lần quét trước
+  + Có thể "Run", "Delete" hoặc "Save" lại
+
+- SAST Reports / DAST Reports:
+  + "View Report": xem chi tiết
+  + "Delete": xoá báo cáo
+
+7. XUẤT BÁO CÁO
+----------------
+- Nhấn "View Report" để mở
+- Báo cáo dạng HTML có thể tải xuống
+- Báo cáo lưu tại thư mục host mount với container (REPORT_PATH)
+
+8. MẸO VÀ LƯU Ý
+----------------
+- Dùng lệnh `docker ps` để kiểm tra các container đang chạy
+- Đảm bảo `REPORT_PATH` và `.env` được cấu hình đúng
+- Nếu dùng private repo, cần cung cấp token truy cập
+- Có thể thu gọn bảng trong dashboard để dễ quan sát
