@@ -15,8 +15,7 @@ const runCommand = (command) => {
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
       if (error) return reject(error.message);
-      if (stderr) console.warn("Warning:", stderr);
-      resolve(stdout);
+      resolve();
     });
   });
 };
@@ -24,12 +23,9 @@ const runCommand = (command) => {
 const checkOrCreateVolume = async (volumeName) => {
   try {
     await runCommand(`docker volume inspect ${volumeName}`);
-    console.log(`Using existing volume: ${volumeName}`);
   } catch {
-    console.log(`Volume '${volumeName}' not found. Creating...`);
     try {
       await runCommand(`docker volume create ${volumeName}`);
-      console.log("Docker volume created:", volumeName);
     } catch (err) {
       throw new Error(`Failed to create volume: ${err}`);
     }
@@ -39,23 +35,16 @@ const checkOrCreateVolume = async (volumeName) => {
 const cleanupVolume = async (volumeName) => {
   try {
     await runCommand(`docker volume rm ${volumeName}`);
-    console.log(`Removed volume: ${volumeName}`);
   } catch (err) {
     console.error("Failed to remove volume:", err);
   }
 };
 
 const cloneRepoIntoVolume = async (targetRepo, volumeName) => {
-  const command = [
-    "docker run --rm",
-    `-v ${volumeName}:/app`,
-    "alpine/git",
-    `clone ${targetRepo} /app`,
-  ].join(" ");
+  const command = ["docker run --rm", `-v ${volumeName}:/app`, "alpine/git", `clone ${targetRepo} /app`].join(" ");
 
   try {
     await runCommand(command);
-    console.log("Repository cloned into volume.");
   } catch (err) {
     throw new Error(`Failed to clone repo: ${err}`);
   }

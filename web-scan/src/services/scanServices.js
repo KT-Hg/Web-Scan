@@ -202,11 +202,10 @@ async function scanWapiti(target, tool = "Wapiti") {
     "-t",
     "1", // Thời gian nghỉ giữa các request (anti-rate-limit)
   ];
-
-  console.log(`Running Wapiti scan on ${target} with command: ${command.join(" ")}`);
   await execCommandInContainer(containerId, command);
   const newData = await crudServices.getReportByName(fileName);
   if (!newData) throw new Error("Report not found after scan.");
+  console.log("Wapiti scan completed.");
   newData.isProcessing = "0";
   await crudServices.updateReportData(newData);
   if (tool === "bothDAST") await checkAndMergeDASTReports(timestamp);
@@ -228,10 +227,10 @@ async function scanZAP(target, tool = "ZAP") {
   await new Promise((resolve) => setTimeout(resolve, 1000));
   const freePort = await getAvailablePort(8080, containerIdZap);
   const command = ["zap.sh", "-cmd", "-quickurl", target, "-port", freePort.toString(), "-quickprogress", "-quickout", reportPath];
-  console.log(`Running ZAP scan on ${target} with command: ${command.join(" ")}`);
   await execCommandInContainer(containerIdZap, command);
   const newData = await crudServices.getReportByName(fileName);
   if (!newData) throw new Error("Report not found after scan.");
+  console.log("ZAP scan completed.");
   newData.isProcessing = "0";
   await crudServices.updateReportData(newData);
   if (tool === "bothDAST") await checkAndMergeDASTReports(timestamp);
@@ -287,6 +286,7 @@ async function scanSonarQube(target, tool = "SonarQube", token = "") {
   await deleteSonarQubeProject(projectKey);
   const newData = await crudServices.getReportByName(fileName);
   if (!newData) throw new Error("Report not found after scan.");
+  console.log("SonarQube scan completed.");
   newData.isProcessing = "0";
   await crudServices.updateReportData(newData);
   if (tool === "bothSAST") await checkAndMergeSASTReports(timestamp);

@@ -6,14 +6,11 @@ dotenv.config();
 
 const SONAR_PASSWORD = process.env.SONAR_PASSWORD;
 
-const buildSonarApiUrl = (projectKey) =>
-  `http://localhost:9000/api/ce/component?component=${projectKey}`;
+const buildSonarApiUrl = (projectKey) => `http://localhost:9000/api/ce/component?component=${projectKey}`;
 
-const buildSonarIssuesUrl = (projectKey) =>
-  `http://localhost:9000/api/issues/search?componentKeys=${projectKey}&resolved=false`;
+const buildSonarIssuesUrl = (projectKey) => `http://localhost:9000/api/issues/search?componentKeys=${projectKey}&resolved=false`;
 
-const buildCurlCommand = (projectKey, reportPath) =>
-  `curl -u admin:${SONAR_PASSWORD} "${buildSonarIssuesUrl(projectKey)}" -o "${reportPath}"`;
+const buildCurlCommand = (projectKey, reportPath) => `curl -u admin:${SONAR_PASSWORD} "${buildSonarIssuesUrl(projectKey)}" -o "${reportPath}"`;
 
 async function checkSonarQubeStatus(projectKey) {
   const url = buildSonarApiUrl(projectKey);
@@ -44,8 +41,7 @@ async function downloadSonarQubeReport(projectKey, reportPath) {
   return new Promise((resolve, reject) => {
     exec(curlCommand, (error, stdout, stderr) => {
       if (error) return reject(error);
-      if (stderr) console.warn(`Warning: ${stderr}`);
-      resolve(reportPath);
+      resolve();
     });
   });
 }
